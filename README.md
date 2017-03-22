@@ -1,7 +1,7 @@
 # Change Log
 This is the Maleficarum Database component. It carries classes used to persist data in storage.
 
-## [1.0.1] - 2017-03-22
+## [1.1.0] - 2017-03-22
 ### Added
 - Added IOC definitions specific to this package.
 
