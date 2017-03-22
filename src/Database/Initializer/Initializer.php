@@ -5,7 +5,7 @@
  */
 declare (strict_types=1);
 
-namespace Maleficarum\Database;
+namespace Maleficarum\Database\Initializer;
 
 class Initializer {
 	/**
