@@ -10,8 +10,9 @@ namespace Maleficarum\Database\Initializer;
 class Initializer {
 	/**
 	 * This will setup all IOC definitions specific to this component.
+	 * @return string
 	 */
-	static public function initialize($opts = []) {
+	static public function initialize($opts = []) : string {
 		\Maleficarum\Ioc\Container::register('Maleficarum\Database\Shard\Manager', function ($dep) {
 			$manager = new \Maleficarum\Database\Shard\Manager();
 
@@ -77,9 +78,10 @@ class Initializer {
 
 			return $pdo;
 		});
-
-		/** @var \Maleficarum\Database\Shard\Manager $shards */
+		
 		$shards = \Maleficarum\Ioc\Container::get('Maleficarum\Database\Shard\Manager');
 		\Maleficarum\Ioc\Container::registerDependency('Maleficarum\Database', $shards);
+		
+		return __METHOD__;
 	}
 }
