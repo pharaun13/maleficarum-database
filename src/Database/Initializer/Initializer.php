@@ -11,7 +11,7 @@ class Initializer {
 	/**
 	 * This will setup all IOC definitions specific to this component.
 	 */
-	static public function initialize () {
+	static public function initialize($opts = []) {
 		\Maleficarum\Ioc\Container::register('Maleficarum\Database\Shard\Manager', function ($dep) {
 			$manager = new \Maleficarum\Database\Shard\Manager();
 
