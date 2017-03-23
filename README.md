@@ -1,6 +1,10 @@
 # Change Log
 This is the Maleficarum Database component. It carries classes used to persist data in storage.
 
+## [1.1.2] - 2017-03-23
+### Changed
+- Default initializer now has an option to skip loding default builder functions.
+
 ## [1.1.1] - 2017-03-23
 ### Changed
 - Default package initializer now properly returns it's name intead of null.
