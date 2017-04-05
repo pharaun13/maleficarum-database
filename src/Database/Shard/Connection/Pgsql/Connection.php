@@ -12,10 +12,10 @@ class Connection extends \Maleficarum\Database\Shard\Connection\AbstractConnecti
 	/* ------------------------------------ Class Methods START ---------------------------------------- */
 
 	/**
-	 * @see \Maleficarum\Database\Shard\Connection\AbstractConnection::getDSN()
+	 * @see \Maleficarum\Database\Shard\Connection\AbstractConnection::getConnectionParams()
 	 */
-	protected function getDSN() : string {
-		return 'pgsql:host=' . $this->getHost() . ';port=' . $this->getPort() . ';dbname=' . $this->getDbname() . ';user=' . $this->getUsername() . ';password=' . $this->getPassword();
+	protected function getConnectionParams() : array {
+		return ['pgsql:host=' . $this->getHost() . ';port=' . $this->getPort() . ';dbname=' . $this->getDbname() . ';user=' . $this->getUsername() . ';password=' . $this->getPassword()];
 	}
 
 	/**

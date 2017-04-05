@@ -1,11 +1,11 @@
 <?php
 
 /**
- * This class provides CRUD implementation specific to postgresql database.
+ * This class provides CRUD implementation specific to MSSQL database.
  */
 declare (strict_types=1);
 
-namespace Maleficarum\Database\Data\Model\Pgsql;
+namespace Maleficarum\Database\Data\Model\Mssql;
          
 abstract class Model extends \Maleficarum\Database\Data\Model\AbstractModel {
 
@@ -31,7 +31,7 @@ abstract class Model extends \Maleficarum\Database\Data\Model\AbstractModel {
 		count($temp) and $query .= '"' . implode('", "', $temp) . '"';
 
 		// attach query transitional segment
-		$query .= ') VALUES (';
+		$query .= ') OUTPUT inserted.* VALUES (';
 
 		// attach parameter names
 		$temp = [];
@@ -40,9 +40,6 @@ abstract class Model extends \Maleficarum\Database\Data\Model\AbstractModel {
 
 		// conclude query building
 		$query .= ')';
-
-		// attach returning
-		$query .= ' RETURNING *;';
 
 		// prepare the statement if necessary
 		array_key_exists(static::class . '::' . __FUNCTION__, self::$st) or self::$st[static::class . '::' . __FUNCTION__] = $shard->prepare($query);
@@ -76,12 +73,11 @@ abstract class Model extends \Maleficarum\Database\Data\Model\AbstractModel {
 
 		// bind query params
 		self::$st[static::class . '::' . __FUNCTION__]->bindValue(":id", $this->getId());
-		if (!self::$st[static::class . '::' . __FUNCTION__]->execute() || self::$st[static::class . '::' . __FUNCTION__]->rowCount() !== 1) {
+		if (!self::$st[static::class . '::' . __FUNCTION__]->execute() || count($result = self::$st[static::class . '::' . __FUNCTION__]->fetch()) === 0) {
 			throw new \RuntimeException('No entity found - ID: ' . $this->getId() . '. ' . static::class . '::read()');
 		}
 
 		// fetch results and merge them into this object
-		$result = self::$st[static::class . '::' . __FUNCTION__]->fetch();
 		$this->merge($result);
 
 		return $this;
@@ -107,7 +103,7 @@ abstract class Model extends \Maleficarum\Database\Data\Model\AbstractModel {
 		$query .= implode(", ", $temp) . " ";
 
 		// conclude query building
-		$query .= 'WHERE "' . $this->getIdColumn() . '" = :id RETURNING *';
+		$query .= 'OUTPUT inserted.* WHERE "' . $this->getIdColumn() . '" = :id';
 
 		// prepare the statement if necessary
 		array_key_exists(static::class . '::' . __FUNCTION__, self::$st) or self::$st[static::class . '::' . __FUNCTION__] = $shard->prepare($query);

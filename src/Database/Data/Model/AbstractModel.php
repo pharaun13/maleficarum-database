@@ -31,6 +31,15 @@ abstract class AbstractModel extends \Maleficarum\Data\Model\AbstractModel {
 	
 	/* ------------------------------------ Class Methods START ---------------------------------------- */
 
+    /**
+     * Fetch the name of main ID column.
+     *
+     * @return string
+     */
+    public function getIdColumn() : string {
+        return $this->getModelPrefix() . 'Id';
+    }
+
 	/**
 	 * This method returns an array of properties to be used in INSERT and UPDATE CRUD operations. The format for each entry is as follows:
 	 *
@@ -48,7 +57,7 @@ abstract class AbstractModel extends \Maleficarum\Data\Model\AbstractModel {
 
 		$properties = \Maleficarum\Ioc\Container::get('ReflectionClass', [static::class])->getProperties(\ReflectionProperty::IS_PRIVATE);
 		foreach ($properties as $key => $prop) {
-			if ($prop->name === $this->getModelPrefix() . "Id") continue;
+			if ($prop->name === $this->getIdColumn()) continue;
 			if (strpos($prop->name, $this->getModelPrefix()) !== 0) continue;
 
 			$methodName = 'get' . str_replace(' ', "", ucwords($prop->name));
@@ -59,7 +68,7 @@ abstract class AbstractModel extends \Maleficarum\Data\Model\AbstractModel {
 
 		return $result;
 	}
-	
+    
 	/* ------------------------------------ Class Methods END ------------------------------------------ */
 
 	/* ------------------------------------ Data\AbstractModel methods START --------------------------- */

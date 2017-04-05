@@ -33,12 +33,15 @@ class Initializer {
 						throw new \RuntimeException('No config defined for the shard: ' . $shard);
 					}
 					$cfg            = $dep['Maleficarum\Config']['database_shards'][$shard];
-					$shards[$shard] = \Maleficarum\Ioc\Container::get('Maleficarum\Database\Shard\Connection\Pgsql\Connection');
+					$charset        = $cfg['charset'] ?? null;
+
+                    $shards[$shard] = \Maleficarum\Ioc\Container::get('Maleficarum\Database\Shard\Connection\\' . $cfg['driver'] . '\Connection');
 					$shards[$shard]->setHost($cfg['host'])
 					               ->setPort((int) $cfg['port'])
 					               ->setDbname($cfg['dbName'])
 					               ->setUsername($cfg['user'])
-					               ->setPassword($cfg['password']);
+					               ->setPassword($cfg['password'])
+                                   ->setCharset($charset);
 				}
 
 				// check routes
@@ -55,10 +58,6 @@ class Initializer {
 				}
 
 				return $manager;
-			});
-
-			\Maleficarum\Ioc\Container::register('Maleficarum\Database\Shard\Connection\Pgsql\Connection', function () {
-				return (new \Maleficarum\Database\Shard\Connection\Pgsql\Connection());
 			});
 
 			\Maleficarum\Ioc\Container::register('PDO', function ($dep, $opts) {

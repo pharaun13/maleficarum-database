@@ -53,6 +53,13 @@ abstract class AbstractConnection {
 	 */
 	protected $password = null;
 
+	/**
+	 * Internal storage for the connections charset.
+	 *
+	 * @var string
+	 */
+	protected $charset = null;
+
 	/* ------------------------------------ Class Property END ----------------------------------------- */
 
 	/* ------------------------------------ Magic methods START ---------------------------------------- */
@@ -68,11 +75,11 @@ abstract class AbstractConnection {
 	 */
 	public function __call(string $name, array $args) {
 		if (is_null($this->connection)) {
-			throw new \RuntimeException(sprintf('Cannot execute DB methods prior to establishing a connection. \%s::_call()', static::class));
+			throw new \RuntimeException(sprintf('Cannot execute DB methods prior to establishing a connection. \%s::__call()', static::class));
 		}
 
 		if (!method_exists($this->connection, $name)) {
-			throw new \InvalidArgumentException(sprintf('Method %s unsupported by PDO. \%s::_call()', $name, static::class));
+			throw new \InvalidArgumentException(sprintf('Method %s unsupported by PDO. \%s::__call()', $name, static::class));
 		}
 
 		return call_user_func_array([$this->connection, $name], $args);
@@ -88,7 +95,7 @@ abstract class AbstractConnection {
 	 * @return \Maleficarum\Database\Shard\Connection\AbstractConnection
 	 */
 	public function connect() : \Maleficarum\Database\Shard\Connection\AbstractConnection {
-		$this->connection = \Maleficarum\Ioc\Container::get('PDO', ['dsn' => $this->getDSN()]);
+		$this->connection = \Maleficarum\Ioc\Container::get('PDO', ['parameters' => $this->getConnectionParams()]);
 
 		return $this;
 	}
@@ -107,11 +114,11 @@ abstract class AbstractConnection {
 	/* ------------------------------------ Abstract methods START ------------------------------------- */
 	
 	/**
-	 * Fetch a database specific DSN to create a connection.
+	 * Fetch a database connection parameters
 	 *
-	 * @return string
+	 * @return array
 	 */
-	abstract protected function getDSN() : string;
+	abstract protected function getConnectionParams() : array;
 
 	/**
 	 * Lock the specified table.
@@ -168,6 +175,15 @@ abstract class AbstractConnection {
 	
 	public function setPassword(string $password) : \Maleficarum\Database\Shard\Connection\AbstractConnection {
 		$this->password = $password;
+		return $this;
+	}
+	
+	public function getCharset() {
+		return $this->charset;
+	}
+	
+	public function setCharset(string $charset) : \Maleficarum\Database\Shard\Connection\AbstractConnection {
+		$this->charset = $charset;
 		return $this;
 	}
 	
