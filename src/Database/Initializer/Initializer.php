@@ -61,7 +61,7 @@ class Initializer {
 			});
 
 			\Maleficarum\Ioc\Container::register('PDO', function ($dep, $opts) {
-				$pdo = new \PDO($opts['dsn']);
+                $pdo = new \PDO(...$opts['parameters']);
 
 				$args = [$pdo];
 				if (isset($dep['Maleficarum\Profiler\Database'])) {
