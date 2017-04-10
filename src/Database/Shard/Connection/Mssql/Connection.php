@@ -8,6 +8,22 @@ declare (strict_types=1);
 namespace Maleficarum\Database\Shard\Connection\Mssql;
 
 class Connection extends \Maleficarum\Database\Shard\Connection\AbstractConnection {
+    /* ------------------------------------ AbstractConnection methods START --------------------------- */
+    public function connect() : \Maleficarum\Database\Shard\Connection\AbstractConnection {
+        $connection = parent::connect();
+
+        $pdo = $this->connection;
+        $pdo->exec('SET ANSI_WARNINGS ON');
+        $pdo->exec('SET ANSI_PADDING ON');
+        $pdo->exec('SET ANSI_NULLS ON');
+        $pdo->exec('SET QUOTED_IDENTIFIER ON');
+        $pdo->exec('SET CONCAT_NULL_YIELDS_NULL ON');
+
+        return $connection;
+    }
+
+    /* ------------------------------------ AbstractConnection methods END ----------------------------- */
+
     /* ------------------------------------ Class Methods START ---------------------------------------- */
 
     /**

@@ -143,9 +143,7 @@ abstract class Collection extends \Maleficarum\Database\Data\Collection\Abstract
 	 * @see \Maleficarum\Database\Data\Collection\AbstractCollection.populate_subset()
 	 */
 	protected function populate_subset(string $query, \stdClass $dto) : string {
-		$query .= 'LIMIT :limit OFFSET :offset ';
-		$dto->params[':limit'] = $dto->data['__subset']['limit'];
-		$dto->params[':offset'] = $dto->data['__subset']['offset'];
+        throw new \RuntimeException('Not implemented yet.');
 
 		return $query;
 	}

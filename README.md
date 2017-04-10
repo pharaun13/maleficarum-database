@@ -1,6 +1,10 @@
 # Change Log
 This is the Maleficarum Database component. It carries classes used to persist data in storage.
 
+## [2.0.1] - 2017-04-10
+### Fixed
+- Set MSSQL specific connection options to handle inserts
+
 ## [2.0.0] - 2017-04-05
 ### Added
 - Add MSSQL connection handler
