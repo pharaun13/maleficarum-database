@@ -35,13 +35,13 @@ class Initializer {
 					$cfg            = $dep['Maleficarum\Config']['database_shards'][$shard];
 					$charset        = $cfg['charset'] ?? null;
 
-                    $shards[$shard] = \Maleficarum\Ioc\Container::get('Maleficarum\Database\Shard\Connection\\' . $cfg['driver'] . '\Connection');
+                    			$shards[$shard] = \Maleficarum\Ioc\Container::get('Maleficarum\Database\Shard\Connection\\' . $cfg['driver'] . '\Connection');
 					$shards[$shard]->setHost($cfg['host'])
 					               ->setPort((int) $cfg['port'])
 					               ->setDbname($cfg['dbName'])
 					               ->setUsername($cfg['user'])
-					               ->setPassword($cfg['password'])
-                                   ->setCharset($charset);
+					               ->setPassword($cfg['password']);
+                                   	is_string($charset) and $shards[$shard]->setCharset($charset);
 				}
 
 				// check routes
