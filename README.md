@@ -1,6 +1,10 @@
 # Change Log
 This is the Maleficarum Database component. It carries classes used to persist data in storage.
 
+## [2.0.3] - 2017-06-02
+### Fixed
+- Merge data only if query returns an array on update
+
 ## [2.0.2] - 2017-04-19
 ### Fixed
 - Set database charset only if is defined
