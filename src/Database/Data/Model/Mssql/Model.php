@@ -53,8 +53,9 @@ abstract class Model extends \Maleficarum\Database\Data\Model\AbstractModel {
 		// execute the query
 		self::$st[static::class . '::' . __FUNCTION__]->execute();
 
+		$returnData = self::$st[static::class . '::' . __FUNCTION__]->fetch();
 		// set new model ID if possible
-		$this->merge(self::$st[static::class . '::' . __FUNCTION__]->fetch());
+		is_array($returnData) and $this->merge($returnData);
 
 		return $this;
 	}
