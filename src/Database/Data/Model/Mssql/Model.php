@@ -120,7 +120,8 @@ abstract class Model extends \Maleficarum\Database\Data\Model\AbstractModel {
 		self::$st[static::class . '::' . __FUNCTION__]->execute();
 
 		// refresh current data with data returned from the database
-		$this->merge(self::$st[static::class . '::' . __FUNCTION__]->fetch());
+        $returnedData = self::$st[static::class . '::' . __FUNCTION__]->fetch();
+		is_array($returnedData) and $this->merge($returnedData);
 
 		return $this;
 	}
