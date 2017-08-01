@@ -1,6 +1,10 @@
 # Change Log
 This is the Maleficarum Database component. It carries classes used to persist data in storage.
 
+## [3.0.0] - 2017-08-01
+### Changed
+- Make use of nullable types provided in PHP 7.1 (http://php.net/manual/en/migration71.new-features.php)
+
 ## [2.0.4] - 2017-07-19
 ### Fixed
 - Merge data only if query returns an array on update
