@@ -1,6 +1,10 @@
 # Change Log
 This is the Maleficarum Database component. It carries classes used to persist data in storage.
 
+## [3.1.0] - 2017-08-18
+### Changed
+- For MSSQL connection use the `sqlsrv` driver instead of obsolete `dblib`
+
 ## [3.0.0] - 2017-08-01
 ### Changed
 - Make use of nullable types provided in PHP 7.1 (http://php.net/manual/en/migration71.new-features.php)

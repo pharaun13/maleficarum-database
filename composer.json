@@ -1,25 +1,25 @@
 {
-	"name": "maleficarum/database",
-	"description": "Maleficarum database component.",
-	"license": "proprietary",
-	"require": {
-		"php": "^7.1",
-		"maleficarum/ioc": "^2.0",
-		"maleficarum/data": "^2.0"
-	},
-	"autoload": {
-		"psr-4": {
-			"Maleficarum\\Database\\": "src/Database/"
-		}
-	},
-	"repositories": [
-		{
-			"type": "vcs",
-			"url": "git@github.com:pharaun13/maleficarum-ioc.git"
-		},
-		{
-			"type": "vcs",
-			"url": "git@github.com:pharaun13/maleficarum-data.git"
-		}
-	]
+  "name": "maleficarum/database",
+  "description": "Maleficarum database component.",
+  "license": "proprietary",
+  "require": {
+    "php": "^7.1",
+    "maleficarum/ioc": "^2.0",
+    "maleficarum/data": "^2.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Maleficarum\\Database\\": "src/Database/"
+    }
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "git@github.com:pharaun13/maleficarum-ioc.git"
+    },
+    {
+      "type": "vcs",
+      "url": "git@github.com:pharaun13/maleficarum-data.git"
+    }
+  ]
 }

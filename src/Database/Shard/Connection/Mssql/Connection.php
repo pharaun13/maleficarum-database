@@ -33,7 +33,7 @@ class Connection extends \Maleficarum\Database\Shard\Connection\AbstractConnecti
      * @see \Maleficarum\Database\Shard\Connection\AbstractConnection::getConnectionParams()
      */
     protected function getConnectionParams(): array {
-        return ['dblib:host=' . $this->getHost() . ':' . $this->getPort() . ';dbname=' . $this->getDbname() . ';charset=' . $this->getCharset(), $this->getUsername(), $this->getPassword()];
+        return ['sqlsrv:Server=' . $this->getHost() . ',' . $this->getPort() . ';Database=' . $this->getDbname(), $this->getUsername(), $this->getPassword()];
     }
 
     /**
