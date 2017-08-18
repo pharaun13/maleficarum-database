@@ -4,6 +4,7 @@ This is the Maleficarum Database component. It carries classes used to persist d
 ## [3.1.0] - 2017-08-18
 ### Changed
 - For MSSQL connection use the `sqlsrv` driver instead of obsolete `dblib`
+- Charset setting removed. It's always UTF-8
 
 ## [3.0.0] - 2017-08-01
 ### Changed

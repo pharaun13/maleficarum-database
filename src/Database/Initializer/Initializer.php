@@ -35,7 +35,6 @@ class Initializer {
                         throw new \RuntimeException('No config defined for the shard: ' . $shard);
                     }
                     $cfg = $dep['Maleficarum\Config']['database_shards'][$shard];
-                    $charset = $cfg['charset'] ?? null;
 
                     $shards[$shard] = \Maleficarum\Ioc\Container::get('Maleficarum\Database\Shard\Connection\\' . $cfg['driver'] . '\Connection');
                     $shards[$shard]->setHost($cfg['host'])
@@ -43,7 +42,6 @@ class Initializer {
                         ->setDbname($cfg['dbName'])
                         ->setUsername($cfg['user'])
                         ->setPassword($cfg['password']);
-                    is_string($charset) and $shards[$shard]->setCharset($charset);
                 }
 
                 // check routes

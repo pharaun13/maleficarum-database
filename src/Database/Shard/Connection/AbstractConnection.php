@@ -51,13 +51,6 @@ abstract class AbstractConnection {
      */
     protected $password = null;
 
-    /**
-     * Internal storage for the connections charset.
-     *
-     * @var string
-     */
-    protected $charset = null;
-
     /* ------------------------------------ Class Property END ----------------------------------------- */
 
     /* ------------------------------------ Magic methods START ---------------------------------------- */
@@ -179,16 +172,6 @@ abstract class AbstractConnection {
 
     public function setPassword(string $password): \Maleficarum\Database\Shard\Connection\AbstractConnection {
         $this->password = $password;
-
-        return $this;
-    }
-
-    public function getCharset(): ?string {
-        return $this->charset;
-    }
-
-    public function setCharset(string $charset): \Maleficarum\Database\Shard\Connection\AbstractConnection {
-        $this->charset = $charset;
 
         return $this;
     }

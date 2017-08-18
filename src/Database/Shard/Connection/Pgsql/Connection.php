@@ -1,11 +1,13 @@
 <?php
-/**
- * This abstract class defines functionality common to all database connections.
- */
 declare (strict_types=1);
 
 namespace Maleficarum\Database\Shard\Connection\Pgsql;
 
+/**
+ * PostgreSQL Server Connection
+ *
+ * It's using UTF-8 charset by default.
+ */
 class Connection extends \Maleficarum\Database\Shard\Connection\AbstractConnection {
     /* ------------------------------------ Class Methods START ---------------------------------------- */
 
