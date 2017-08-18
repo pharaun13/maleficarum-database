@@ -7,6 +7,10 @@
     "maleficarum/ioc": "^2.0",
     "maleficarum/data": "^2.0"
   },
+  "suggest": {
+    "ext-pgsql": "In order to use PostgreSQL",
+    "ext-sqlsrv": "In order to use Microsoft SQL Server"
+  },
   "autoload": {
     "psr-4": {
       "Maleficarum\\Database\\": "src/Database/"
