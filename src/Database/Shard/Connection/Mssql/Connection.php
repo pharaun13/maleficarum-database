@@ -7,6 +7,8 @@ namespace Maleficarum\Database\Shard\Connection\Mssql;
  * Microsoft SQL Server Connection
  *
  * It's using UTF-8 charset by default.
+ *
+ * @see https://docs.microsoft.com/en-us/sql/connect/php/microsoft-php-driver-for-sql-server
  */
 class Connection extends \Maleficarum\Database\Shard\Connection\AbstractConnection {
     /* ------------------------------------ AbstractConnection methods START --------------------------- */
@@ -23,6 +25,9 @@ class Connection extends \Maleficarum\Database\Shard\Connection\AbstractConnecti
         $pdo->exec('SET ANSI_NULLS ON');
         $pdo->exec('SET QUOTED_IDENTIFIER ON');
         $pdo->exec('SET CONCAT_NULL_YIELDS_NULL ON');
+        // Don't return all columns as strings
+        // @see https://docs.microsoft.com/en-us/sql/connect/php/constants-microsoft-drivers-for-php-for-sql-server
+        $pdo->setAttribute(\PDO::SQLSRV_ATTR_FETCHES_NUMERIC_TYPE, true);
 
         return $connection;
     }
