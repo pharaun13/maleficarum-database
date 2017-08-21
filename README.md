@@ -1,6 +1,10 @@
 # Change Log
 This is the Maleficarum Database component. It carries classes used to persist data in storage.
 
+## [3.1.1] - 2017-08-21
+### Changed
+- MSSQL connection does not cast all columns to string
+
 ## [3.1.0] - 2017-08-18
 ### Changed
 - For MSSQL connection use the `sqlsrv` driver instead of obsolete `dblib`
