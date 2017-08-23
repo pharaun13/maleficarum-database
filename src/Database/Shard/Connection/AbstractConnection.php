@@ -11,7 +11,6 @@ use Maleficarum\Database\Exception\Exception;
 /**
  * Wrapper for plain \PDO that unifies various databases even more
  *
- * @method \PDOStatement prepare($statement, array $driver_options = [])
  * @method bool inTransaction()
  * @method \PDOStatement|false query($statement, $mode = \PDO::ATTR_DEFAULT_FETCH_MODE, $arg3 = null, array $ctorargs = [])
  */
@@ -130,7 +129,18 @@ abstract class AbstractConnection {
     }
 
     /**
-     * Returns prepared statement that has all necessary driver options etc.
+     * @param       $statement
+     * @param array $driver_options
+     *
+     * @deprecated Please use 'prepareStatement' instead as it is more reliable.
+     */
+    public function prepare($statement, array $driver_options = [])
+    {
+        throw new \LogicException("Please use 'prepareStatement' instead as it is more reliable.");
+    }
+
+    /**
+     * Returns prepared statement that has all parameters bound and necessary driver options set
      *
      * This method should be preferred over direct use of AbstractConnection::prepare / \PDO::prepare
      * as it makes sure everything will work properly with various databases.
@@ -144,8 +154,15 @@ abstract class AbstractConnection {
     {
         // making sure everything will work the same way for all databases
         $driverOptions = $this->getDriverOptions($query, $queryParams);
+        $statement = $this->connection->prepare($query, $driverOptions);
 
-        return $this->prepare($query, $driverOptions);
+        // bind parameters
+        foreach ($queryParams as $key => $val) {
+            $type = is_bool($val) ? \PDO::PARAM_BOOL : \PDO::PARAM_STR;
+            $statement->bindValue($key, $val, $type);
+        }
+
+        return $statement;
     }
 
     /**

@@ -176,11 +176,6 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
      */
     protected function populate_fetchData(string $query, \stdClass $dto): \Maleficarum\Database\Data\Collection\AbstractCollection {
         $st = $this->prepareStatement($query, $dto->params);
-        // bind parameters
-        foreach ($dto->params as $key => $val) {
-            $st->bindValue($key, $val, is_bool($val) ? \PDO::PARAM_BOOL : \PDO::PARAM_STR);
-        }
-
         $st->execute();
         $this->data = $st->fetchAll(\PDO::FETCH_ASSOC);
 
@@ -188,7 +183,7 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
     }
 
     /**
-     * Makes sure DB Shard is available and prepares a statement
+     * Makes sure DB Shard is available and prepares a statement - binds all given params
      *
      * @param string $query
      * @param array  $queryParams
