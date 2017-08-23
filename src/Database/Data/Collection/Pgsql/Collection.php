@@ -194,15 +194,7 @@ abstract class Collection extends \Maleficarum\Database\Data\Collection\Abstract
         // attach returning
         $sql .= ' RETURNING *;';
 
-        // fetch a shard connection
-        $shard = $this->getDb()->fetchShard($this->getShardRoute());
-
-        // lazy connections - establish a connection if necessary
-        $shard->isConnected() or $shard->connect();
-
-        // prepare statement
-        $st = $shard->prepare($sql);
-
+        $st = $this->prepareStatement($sql, $params);
         // bind parameters
         foreach ($params as $key => $val) {
             $type = is_bool($val) ? \PDO::PARAM_BOOL : \PDO::PARAM_STR;
@@ -256,15 +248,7 @@ abstract class Collection extends \Maleficarum\Database\Data\Collection\Abstract
         }
         $sql .= implode(' OR ', $sets);
 
-        // fetch a shard connection
-        $shard = $this->getDb()->fetchShard($this->getShardRoute());
-
-        // lazy connections - establish a connection if necessary
-        $shard->isConnected() or $shard->connect();
-
-        // prepare statement
-        $st = $shard->prepare($sql);
-
+        $st = $this->prepareStatement($sql, $params);
         // bind parameters
         foreach ($params as $key => $val) {
             $st->bindValue($key, $val);

@@ -175,15 +175,7 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
      * @return \Maleficarum\Database\Data\Collection\AbstractCollection
      */
     protected function populate_fetchData(string $query, \stdClass $dto): \Maleficarum\Database\Data\Collection\AbstractCollection {
-        // fetch a shard connection
-        $shard = $this->getDb()->fetchShard($this->getShardRoute());
-
-        // lazy connections - establish a connection if necessary
-        $shard->isConnected() or $shard->connect();
-
-        // prepare statement
-        $st = $shard->prepare($query);
-
+        $st = $this->prepareStatement($query, $dto->params);
         // bind parameters
         foreach ($dto->params as $key => $val) {
             $st->bindValue($key, $val, is_bool($val) ? \PDO::PARAM_BOOL : \PDO::PARAM_STR);
@@ -193,6 +185,24 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
         $this->data = $st->fetchAll(\PDO::FETCH_ASSOC);
 
         return $this;
+    }
+
+    /**
+     * Makes sure DB Shard is available and prepares a statement
+     *
+     * @param string $query
+     * @param array  $queryParams
+     *
+     * @return \PDOStatement
+     */
+    protected function prepareStatement(string $query, array $queryParams = []): \PDOStatement
+    {
+        // fetch a shard connection
+        $shard = $this->getDb()->fetchShard($this->getShardRoute());
+        // lazy connections - establish a connection if necessary
+        $shard->isConnected() or $shard->connect();
+
+        return $shard->prepareStatement($query, $queryParams);
     }
 
     /**

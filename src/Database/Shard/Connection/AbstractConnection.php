@@ -6,8 +6,23 @@ declare (strict_types=1);
 
 namespace Maleficarum\Database\Shard\Connection;
 
+use Maleficarum\Database\Exception\Exception;
+
+/**
+ * Wrapper for plain \PDO that unifies various databases even more
+ *
+ * @method \PDOStatement prepare($statement, array $driver_options = [])
+ * @method bool inTransaction()
+ * @method \PDOStatement|false query($statement, $mode = \PDO::ATTR_DEFAULT_FETCH_MODE, $arg3 = null, array $ctorargs = [])
+ */
 abstract class AbstractConnection {
     /* ------------------------------------ Class Property START --------------------------------------- */
+
+    /**
+     * PDO driver name, eg. 'pgsql'
+     * @var string
+     */
+    protected $driverName = 'abstract';
 
     /**
      * Internal storage for the PDO connection.
@@ -53,6 +68,14 @@ abstract class AbstractConnection {
 
     /* ------------------------------------ Class Property END ----------------------------------------- */
 
+    /**
+     * @param string $driverName eg. pgsql
+     */
+    public function __construct(string $driverName)
+    {
+        $this->setDriverName($driverName);
+    }
+
     /* ------------------------------------ Magic methods START ---------------------------------------- */
 
     /**
@@ -85,9 +108,14 @@ abstract class AbstractConnection {
      * Connect this instance to a database engine.
      *
      * @return \Maleficarum\Database\Shard\Connection\AbstractConnection
+     * @throws Exception
      */
     public function connect(): \Maleficarum\Database\Shard\Connection\AbstractConnection {
-        $this->connection = \Maleficarum\Ioc\Container::get('PDO', ['parameters' => $this->getConnectionParams()]);
+        try {
+            $this->connection = \Maleficarum\Ioc\Container::get('PDO', $this->getConnectionParams());
+        } catch (\PDOException $pex) {
+            throw Exception::fromPDOException($pex, $this);
+        }
 
         return $this;
     }
@@ -99,6 +127,40 @@ abstract class AbstractConnection {
      */
     public function isConnected(): bool {
         return !is_null($this->connection);
+    }
+
+    /**
+     * Returns prepared statement that has all necessary driver options etc.
+     *
+     * This method should be preferred over direct use of AbstractConnection::prepare / \PDO::prepare
+     * as it makes sure everything will work properly with various databases.
+     *
+     * @param string $query
+     * @param array  $queryParams
+     *
+     * @return \PDOStatement
+     */
+    public function prepareStatement(string $query, array $queryParams = []): \PDOStatement
+    {
+        // making sure everything will work the same way for all databases
+        $driverOptions = $this->getDriverOptions($query, $queryParams);
+
+        return $this->prepare($query, $driverOptions);
+    }
+
+    /**
+     * Returns driver options for \PDO::prepare that are appropriate for given query and dto (parameters)
+     *
+     * @param string $query
+     * @param array  $queryParams params that will be bound to prepared statement using \PDOStatement::bindValue
+     *
+     * @return array eg. [PDO::ATTR_EMULATE_PREPARES => true]
+     *
+     * @link http://php.net/manual/en/pdo.setattribute.php
+     */
+    protected function getDriverOptions(string $query, array $queryParams = []): array
+    {
+        return []; // no driver options needed by default
     }
 
     /* ------------------------------------ Class Methods END ------------------------------------------ */
@@ -172,6 +234,29 @@ abstract class AbstractConnection {
 
     public function setPassword(string $password): \Maleficarum\Database\Shard\Connection\AbstractConnection {
         $this->password = $password;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDriverName(): string
+    {
+        return $this->driverName;
+    }
+
+    /**
+     * @param string $driverName
+     *
+     * @return $this
+     */
+    private function setDriverName(string $driverName): AbstractConnection
+    {
+        if (empty($driverName)) {
+            throw new \InvalidArgumentException('Database driver name must be provided.');
+        }
+        $this->driverName = $driverName;
 
         return $this;
     }

@@ -8,10 +8,21 @@ namespace Maleficarum\Database\Shard\Connection\Mssql;
  *
  * It's using UTF-8 charset by default.
  *
- * @see https://docs.microsoft.com/en-us/sql/connect/php/microsoft-php-driver-for-sql-server
+ * Some workaround had to be implemented to handle SQL Server limitations.
+ *
+ * @link https://docs.microsoft.com/en-us/sql/connect/php/microsoft-php-driver-for-sql-server
+ * @link https://docs.microsoft.com/en-us/sql/sql-server/maximum-capacity-specifications-for-sql-server
+ * @link http://cgit.drupalcode.org/sqlsrv/tree/sqlsrv/database.inc?h=7.x-2.x
  */
 class Connection extends \Maleficarum\Database\Shard\Connection\AbstractConnection {
     /* ------------------------------------ AbstractConnection methods START --------------------------- */
+
+    /**
+     * How many params can be bound using \PDOStatement::bindValue
+     *
+     * @link https://docs.microsoft.com/en-us/sql/sql-server/maximum-capacity-specifications-for-sql-server
+     */
+    const PDO_PARAMS_LIMIT = 2100;
 
     /**
      * @see \Maleficarum\Database\Shard\Connection\AbstractConnection::connect()
@@ -37,10 +48,22 @@ class Connection extends \Maleficarum\Database\Shard\Connection\AbstractConnecti
     /* ------------------------------------ Class Methods START ---------------------------------------- */
 
     /**
+     * Sets proper driver name
+     */
+    public function __construct()
+    {
+        parent::__construct('sqlsrv');
+    }
+
+    /**
      * @see \Maleficarum\Database\Shard\Connection\AbstractConnection::getConnectionParams()
      */
     protected function getConnectionParams(): array {
-        return ['sqlsrv:Server=' . $this->getHost() . ',' . $this->getPort() . ';Database=' . $this->getDbname(), $this->getUsername(), $this->getPassword()];
+        return [
+            $this->getDriverName() . ':Server=' . $this->getHost() . ',' . $this->getPort() . ';Database=' . $this->getDbname(),
+            $this->getUsername(),
+            $this->getPassword()
+        ];
     }
 
     /**
@@ -48,8 +71,34 @@ class Connection extends \Maleficarum\Database\Shard\Connection\AbstractConnecti
      */
     public function lockTable(string $table, string $mode = 'ACCESS EXCLUSIVE'): \Maleficarum\Database\Shard\Connection\AbstractConnection {
         throw new \RuntimeException('Not implemented yet.');
+    }
 
-        return $this;
+    /**
+     * @inheritdoc
+     */
+    protected function getDriverOptions(string $query, array $queryParams = []): array
+    {
+        /**
+         * Since MS SQL allows up to 2100 parameters being bound using \PDOStatement::bindValue
+         * we enable prepared statements emulation to disable that limit.
+         * This could decrease security level regarding SQL injection so we do that only if all parameters that
+         * are about to be set are integers.
+         */
+        $driverOptions = parent::getDriverOptions($query, $queryParams);
+        if (count($queryParams) > self::PDO_PARAMS_LIMIT) {
+            $nonIntValues = array_filter(
+                $queryParams,
+                function ($element) {
+                    return !is_int($element);
+                }
+            );
+            if (count($nonIntValues) === 0) {
+                // Making sure all params are integers so it's safe to emulate prepares
+                $driverOptions[\PDO::ATTR_EMULATE_PREPARES] = true;
+            }
+        }
+
+        return $driverOptions;
     }
 
     /* ------------------------------------ Class Methods END ------------------------------------------ */

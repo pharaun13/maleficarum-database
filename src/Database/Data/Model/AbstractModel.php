@@ -21,7 +21,7 @@ abstract class AbstractModel extends \Maleficarum\Data\Model\AbstractModel {
     /**
      * Internal cache storage for prepared PDO statements.
      *
-     * @var array
+     * @var \PDOStatement[]
      */
     protected static $st = [];
 
