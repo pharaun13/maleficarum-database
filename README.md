@@ -3,6 +3,9 @@ This is the Maleficarum Database component. It carries classes used to persist d
 
 ## [4.0.0] - 2017-08-23
 ### Changed
+- NOTICE: `\Maleficarum\Database\Shard\Connection\AbstractConnection::prepare` has been deprecated
+    and will throw an `\LogicException`. 
+    `prepareStatement` should be used instead.
 - Handle MS SQL Server parameters limit
 - Throw `\Maleficarum\Database\Exception\Exception` on connection failure, eg. due to missing driver
 - Don't break `\PDO` constructor contract when using `\Maleficarum\Database\Initializer\Initializer`

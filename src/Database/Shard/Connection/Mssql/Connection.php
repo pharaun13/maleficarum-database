@@ -74,6 +74,40 @@ class Connection extends \Maleficarum\Database\Shard\Connection\AbstractConnecti
     }
 
     /**
+     * To handle MS SQL limit described in getDriverOptions even better we put all integer params directly into query
+     *
+     * @inheritdoc
+     */
+    public function prepareStatement(string $query, array $queryParams = []): \PDOStatement
+    {
+        $optimizedQuery = $query;
+        $optimizedQueryParams = [];
+        if (count($queryParams) > self::PDO_PARAMS_LIMIT) {
+            /**
+             * If there's more than 2100 params we try to put all integers directly into query to reduce the number
+             * of parameters that need to be bound using \PDOStatement::bindValue
+             */
+            $paramNames = array_keys($queryParams);
+            // sorting and reversing so we don't replace for example 'par11' when replacing 'par1'
+            natsort($paramNames);
+            $paramNames = array_reverse($paramNames);
+            // check all params to find and hardcoded integers
+            foreach ($paramNames as $paramName) {
+                $value = $queryParams[$paramName];
+                if (is_int($value)) {
+                    // is an integer so put directly into query
+                    $optimizedQuery = str_replace($paramName, $value, $optimizedQuery);
+                } else {
+                    // keep that param to be bound
+                    $optimizedQueryParams[$paramName] = $value;
+                }
+            }
+        }
+
+        return parent::prepareStatement($optimizedQuery, $optimizedQueryParams);
+    }
+
+    /**
      * @inheritdoc
      */
     protected function getDriverOptions(string $query, array $queryParams = []): array

@@ -186,11 +186,6 @@ abstract class Collection extends \Maleficarum\Database\Data\Collection\Abstract
         $sql .= implode(', ', $sets);
 
         $st = $this->prepareStatement($sql, $params);
-        // bind parameters
-        foreach ($params as $key => $val) {
-            $type = is_bool($val) ? \PDO::PARAM_BOOL : \PDO::PARAM_STR;
-            $st->bindValue($key, $val, $type);
-        }
 
         // execute the query
         $st->execute();
@@ -240,10 +235,6 @@ abstract class Collection extends \Maleficarum\Database\Data\Collection\Abstract
         $sql .= implode(' OR ', $sets);
 
         $st = $this->prepareStatement($sql, $params);
-        // bind parameters
-        foreach ($params as $key => $val) {
-            $st->bindValue($key, $val);
-        }
 
         // execute the query
         $st->execute();
