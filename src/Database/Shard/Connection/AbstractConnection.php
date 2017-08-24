@@ -283,6 +283,26 @@ abstract class AbstractConnection
     }
 
     /**
+     * Has statement param count limit?
+     *
+     * @return bool
+     */
+    public function hasStmtParamCountLimit(): bool
+    {
+        return (null !== $this->statementParamCountLimit);
+    }
+
+    /**
+     * Get statement param count limit
+     *
+     * @return int|null
+     */
+    public function getStmtParamCountLimit(): ?int
+    {
+        return $this->statementParamCountLimit;
+    }
+
+    /**
      * @param string $driverName
      *
      * @return $this
@@ -295,26 +315,6 @@ abstract class AbstractConnection
         $this->driverName = $driverName;
 
         return $this;
-    }
-
-    /**
-     * Has statement param count limit?
-     *
-     * @return bool
-     */
-    private function hasStmtParamCountLimit(): bool
-    {
-        return (null !== $this->statementParamCountLimit);
-    }
-
-    /**
-     * Get statement param count limit
-     *
-     * @return int|null
-     */
-    private function getStmtParamCountLimit(): ?int
-    {
-        return $this->statementParamCountLimit;
     }
 
     /* ------------------------------------ Setters & Getters END -------------------------------------- */

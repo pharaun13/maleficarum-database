@@ -14,6 +14,11 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
      */
     use \Maleficarum\Database\Dependant;
 
+    /**
+     * This is used when database it self has no preferences or limits
+     */
+    private $preferredBatchSize = 2000;
+
     /* ------------------------------------ Class Traits END ------------------------------------------- */
 
     /* ------------------------------------ Class Property START --------------------------------------- */
@@ -223,6 +228,23 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
      */
     protected function format(): \Maleficarum\Database\Data\Collection\AbstractCollection {
         return $this;
+    }
+
+    /**
+     * If you decide to send a lot of data to/from database in batches that's the preferred batch size
+     *
+     * @return int
+     */
+    protected function getBatchSize(): int
+    {
+        $batchSize = $this->preferredBatchSize;
+        $shard = $this->getDb()->fetchShard($this->getShardRoute());
+
+        if ($shard->hasStmtParamCountLimit()) {
+            $batchSize = $shard->getStmtParamCountLimit();
+        }
+
+        return $batchSize;
     }
 
     /* ------------------------------------ Class Methods END ------------------------------------------ */
