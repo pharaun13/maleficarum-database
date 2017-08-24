@@ -1,7 +1,7 @@
 # Change Log
 This is the Maleficarum Database component. It carries classes used to persist data in storage.
 
-## [4.0.0] - 2017-08-23
+## [4.0.0] - 2017-08-24
 ### Changed
 - NOTICE: `\Maleficarum\Database\Shard\Connection\AbstractConnection::prepare` has been deprecated
     and will throw an `\LogicException`. 
