@@ -81,12 +81,13 @@ class Connection extends \Maleficarum\Database\Shard\Connection\AbstractConnecti
     public function prepareStatement(string $query, array $queryParams = []): \PDOStatement
     {
         $optimizedQuery = $query;
-        $optimizedQueryParams = [];
+        $optimizedQueryParams = $queryParams;
         if (count($queryParams) > self::PDO_PARAMS_LIMIT) {
             /**
              * If there's more than 2100 params we try to put all integers directly into query to reduce the number
              * of parameters that need to be bound using \PDOStatement::bindValue
              */
+            $optimizedQueryParams = [];
             $paramNames = array_keys($queryParams);
             // sorting and reversing so we don't replace for example 'par11' when replacing 'par1'
             natsort($paramNames);
