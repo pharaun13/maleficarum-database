@@ -24,7 +24,7 @@ class Connection extends \Maleficarum\Database\Shard\Connection\AbstractConnecti
      * It's set to 2000 to leave some "space" for some rare cases.
      * @see KNOWN_LIMITATION_2100
      */
-    const PDO_PARAMS_LIMIT = 2000;
+    const STATEMENT_PARAMS_LIMIT = 2000;
 
     /**
      * @link https://docs.microsoft.com/en-us/sql/sql-server/maximum-capacity-specifications-for-sql-server
@@ -66,7 +66,7 @@ class Connection extends \Maleficarum\Database\Shard\Connection\AbstractConnecti
      */
     public function __construct()
     {
-        parent::__construct('sqlsrv');
+        parent::__construct('sqlsrv', self::STATEMENT_PARAMS_LIMIT);
     }
 
     /**
@@ -97,7 +97,7 @@ class Connection extends \Maleficarum\Database\Shard\Connection\AbstractConnecti
     {
         $optimizedQuery = $query;
         $optimizedQueryParams = $queryParams;
-        if (count($queryParams) > self::PDO_PARAMS_LIMIT) {
+        if (count($queryParams) > self::STATEMENT_PARAMS_LIMIT) {
             /**
              * If there's more than 2100 params we try to put all integers directly into query to reduce the number
              * of parameters that need to be bound using \PDOStatement::bindValue
