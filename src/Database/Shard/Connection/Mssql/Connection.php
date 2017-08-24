@@ -78,7 +78,7 @@ class Connection extends \Maleficarum\Database\Shard\Connection\AbstractConnecti
      *
      * @inheritdoc
      */
-    public function prepareStatement(string $query, array $queryParams = []): \PDOStatement
+    public function prepareStatement(string $query, array $queryParams): \PDOStatement
     {
         $optimizedQuery = $query;
         $optimizedQueryParams = $queryParams;

@@ -121,7 +121,7 @@ abstract class Model extends \Maleficarum\Database\Data\Model\AbstractModel {
         $queryParams[':id'] = $this->getId();
         // prepare the statement if necessary
         if (!array_key_exists(static::class . '::' . __FUNCTION__, self::$st)) {
-            self::$st[static::class . '::' . __FUNCTION__] = $shard->prepareStatement($query);
+            self::$st[static::class . '::' . __FUNCTION__] = $shard->prepareStatement($query, $queryParams);
         }
 
         // bind ID and execute
