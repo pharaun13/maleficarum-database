@@ -145,12 +145,12 @@ abstract class AbstractConnection {
      * This method should be preferred over direct use of AbstractConnection::prepare / \PDO::prepare
      * as it makes sure everything will work properly with various databases.
      *
-     * @param string $query
-     * @param array  $queryParams
+     * @param string $query eg. SELECT * FROM users WHERE id = :id OR name = :name
+     * @param array  $queryParams eg. [':id' => 123, ':name' => 'David']
      *
      * @return \PDOStatement
      */
-    public function prepareStatement(string $query, array $queryParams = []): \PDOStatement
+    public function prepareStatement(string $query, array $queryParams): \PDOStatement
     {
         // making sure everything will work the same way for all databases
         $driverOptions = $this->getDriverOptions($query, $queryParams);
