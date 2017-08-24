@@ -45,7 +45,7 @@ class CollectionTest extends TestCase
         self::assertGreaterThan(0, $collection->count(), 'It should be possible to ask for less items than MS SQL limit.');
     }
 
-    public function testFetchCollectionOfMoreThanMssqlParameterCountLimit()
+    public function testFetchCollectionOfMoreThanMssqlParameterCountLimitUsingOnlyIntegers()
     {
         $shard = $this->config['SomeCollection']['shard'];
         $table = $this->config['SomeCollection']['table'];
@@ -53,8 +53,31 @@ class CollectionTest extends TestCase
         $collection = new SomeCollection($shard, $table, $idColumn);
         $collection->setDb($this->database);
 
-        // try to fetch over 2100 items
-        $collection->populate(['product_id' => range(1, 2*Connection::PDO_PARAMS_LIMIT)]);
+        // try to fetch over 2100 items using only integers as params
+        $ids = range(1, 2*Connection::STATEMENT_PARAMS_LIMIT);
+        $collection->populate(['product_id' => $ids]);
+
+        self::assertGreaterThan(0, $collection->count(), 'It should be possible to ask for more items than MS SQL limit.');
+    }
+
+    /**
+     * @expectedException \Maleficarum\Database\Exception\Exception
+     * @expectedExceptionMessage You're trying to set
+     */
+    public function testFetchCollectionOfMoreThanMssqlParameterCountLimitUsingOnlyStrings()
+    {
+        $shard = $this->config['SomeCollection']['shard'];
+        $table = $this->config['SomeCollection']['table'];
+        $idColumn = $this->config['SomeCollection']['idColumn'];
+        $collection = new SomeCollection($shard, $table, $idColumn);
+        $collection->setDb($this->database);
+
+        // try to fetch over 2100 items using only strings as params
+        $ids = range(1, 2*Connection::STATEMENT_PARAMS_LIMIT);
+        array_walk($ids, function(&$element) {
+            $element = (string) $element;
+        });
+        $collection->populate(['product_id' => $ids]);
 
         self::assertGreaterThan(0, $collection->count(), 'It should be possible to ask for more items than MS SQL limit.');
     }
