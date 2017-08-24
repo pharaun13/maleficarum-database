@@ -10,6 +10,8 @@ namespace Maleficarum\Database\Shard\Connection\Mssql;
  *
  * Some workaround had to be implemented to handle SQL Server limitations.
  *
+ * For Known Limitations (at least some of the most frequent) see the consts `KNOWN_LIMITATION_*`.
+ *
  * @link https://docs.microsoft.com/en-us/sql/connect/php/microsoft-php-driver-for-sql-server
  * @link https://docs.microsoft.com/en-us/sql/sql-server/maximum-capacity-specifications-for-sql-server
  * @link http://cgit.drupalcode.org/sqlsrv/tree/sqlsrv/database.inc?h=7.x-2.x
@@ -19,10 +21,22 @@ class Connection extends \Maleficarum\Database\Shard\Connection\AbstractConnecti
 
     /**
      * How many params can be bound using \PDOStatement::bindValue
-     *
+     * It's set to 2000 to leave some "space" for some rare cases.
+     * @see KNOWN_LIMITATION_2100
+     */
+    const PDO_PARAMS_LIMIT = 2000;
+
+    /**
      * @link https://docs.microsoft.com/en-us/sql/sql-server/maximum-capacity-specifications-for-sql-server
      */
-    const PDO_PARAMS_LIMIT = 2100;
+    const KNOWN_LIMITATION_2100 = 'KNOWN_LIMITATION_2100';
+
+    /**
+     * You can not put enormous amount of values in `IN` clause.
+     * See "Remarks" in manual linked below
+     * @link https://docs.microsoft.com/en-us/sql/t-sql/language-elements/in-transact-sql
+     */
+    const KNOWN_LIMITATION_8623 = 'KNOWN_LIMITATION_8623';
 
     /**
      * @see \Maleficarum\Database\Shard\Connection\AbstractConnection::connect()
@@ -77,6 +91,7 @@ class Connection extends \Maleficarum\Database\Shard\Connection\AbstractConnecti
      * To handle MS SQL limit described in getDriverOptions even better we put all integer params directly into query
      *
      * @inheritdoc
+     * @see \Maleficarum\Database\Shard\Connection\Mssql\Connection::KNOWN_LIMITATION_8623
      */
     public function prepareStatement(string $query, array $queryParams): \PDOStatement
     {
@@ -86,6 +101,8 @@ class Connection extends \Maleficarum\Database\Shard\Connection\AbstractConnecti
             /**
              * If there's more than 2100 params we try to put all integers directly into query to reduce the number
              * of parameters that need to be bound using \PDOStatement::bindValue
+             *
+             * @see \Maleficarum\Database\Shard\Connection\Mssql\Connection::KNOWN_LIMITATION_8623
              */
             $optimizedQueryParams = [];
             $paramNames = array_keys($queryParams);
