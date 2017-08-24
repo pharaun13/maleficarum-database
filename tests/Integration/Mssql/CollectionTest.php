@@ -31,6 +31,20 @@ class CollectionTest extends TestCase
         $this->initDatabase();
     }
 
+    public function testFetchCollectionOfLessThanMssqlParameterCountLimit()
+    {
+        $shard = $this->config['SomeCollection']['shard'];
+        $table = $this->config['SomeCollection']['table'];
+        $idColumn = $this->config['SomeCollection']['idColumn'];
+        $collection = new SomeCollection($shard, $table, $idColumn);
+        $collection->setDb($this->database);
+
+        // try to fetch over 2100 items
+        $collection->populate(['product_id' => range(1, 20)]);
+
+        self::assertGreaterThan(0, $collection->count(), 'It should be possible to ask for less items than MS SQL limit.');
+    }
+
     public function testFetchCollectionOfMoreThanMssqlParameterCountLimit()
     {
         $shard = $this->config['SomeCollection']['shard'];
