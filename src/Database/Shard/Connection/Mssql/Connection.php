@@ -144,10 +144,8 @@ class Connection extends \Maleficarum\Database\Shard\Connection\AbstractConnecti
                     return !is_int($element);
                 }
             );
-            $nonIntValueCount = count($nonIntValues);
-            if ($nonIntValueCount === 0 || $nonIntValueCount > self::PDO_PARAMS_LIMIT) {
+            if (count($nonIntValues) === 0) {
                 // Making sure all params are integers so it's safe to emulate prepares
-                // OR we don't have other options as there's too many params
                 $driverOptions[\PDO::ATTR_EMULATE_PREPARES] = true;
             }
         }
