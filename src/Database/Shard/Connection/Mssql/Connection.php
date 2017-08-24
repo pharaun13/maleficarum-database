@@ -125,33 +125,5 @@ class Connection extends \Maleficarum\Database\Shard\Connection\AbstractConnecti
         return parent::prepareStatement($optimizedQuery, $optimizedQueryParams);
     }
 
-    /**
-     * @inheritdoc
-     */
-    protected function getDriverOptions(string $query, array $queryParams = []): array
-    {
-        /**
-         * Since MS SQL allows up to 2100 parameters being bound using \PDOStatement::bindValue
-         * we enable prepared statements emulation to disable that limit.
-         * This could decrease security level regarding SQL injection so we do that only if all parameters that
-         * are about to be set are integers.
-         */
-        $driverOptions = parent::getDriverOptions($query, $queryParams);
-        if (count($queryParams) > self::PDO_PARAMS_LIMIT) {
-            $nonIntValues = array_filter(
-                $queryParams,
-                function ($element) {
-                    return !is_int($element);
-                }
-            );
-            if (count($nonIntValues) === 0) {
-                // Making sure all params are integers so it's safe to emulate prepares
-                $driverOptions[\PDO::ATTR_EMULATE_PREPARES] = true;
-            }
-        }
-
-        return $driverOptions;
-    }
-
     /* ------------------------------------ Class Methods END ------------------------------------------ */
 }
