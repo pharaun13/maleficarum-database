@@ -58,6 +58,21 @@ class CollectionTest extends TestCase
         self::assertGreaterThan(0, $collection->count(), 'It should be possible to ask for more items than MS SQL limit.');
     }
 
+    public function testFetchCollectionOfMoreThanMssqlParameterCountLimitAndManyCriteriaColumns()
+    {
+        $shard = $this->config['SomeCollection']['shard'];
+        $table = $this->config['SomeCollection']['table'];
+        $idColumn = $this->config['SomeCollection']['idColumn'];
+        $propertyColumn = $this->config['SomeCollection']['propertyColumn'];
+        $collection = new SomeCollection($shard, $table, $idColumn);
+        $collection->setDb($this->database);
+
+        $ids = range(1, 2 * Connection::STATEMENT_PARAMS_LIMIT);
+        $collection->populate(['product_id' => $ids, $propertyColumn => [331]]);
+
+        self::assertGreaterThan(0, $collection->count(), 'It should be possible to ask for more items than MS SQL limit.');
+    }
+
     /**
      * @return void
      */

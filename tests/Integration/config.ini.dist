@@ -4,6 +4,7 @@
 shard = "no"
 table = "products"
 idColumn = "product_id"
+propertyColumn = "shop_id"
 
 [database]
 shards[] = "no"
