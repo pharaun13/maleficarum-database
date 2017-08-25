@@ -8,10 +8,35 @@ namespace Maleficarum\Database\Shard\Connection\Mssql;
  *
  * It's using UTF-8 charset by default.
  *
- * @see https://docs.microsoft.com/en-us/sql/connect/php/microsoft-php-driver-for-sql-server
+ * Some workaround had to be implemented to handle SQL Server limitations.
+ *
+ * For Known Limitations (at least some of the most frequent) see the consts `KNOWN_LIMITATION_*`.
+ *
+ * @link https://docs.microsoft.com/en-us/sql/connect/php/microsoft-php-driver-for-sql-server
+ * @link https://docs.microsoft.com/en-us/sql/sql-server/maximum-capacity-specifications-for-sql-server
+ * @link http://cgit.drupalcode.org/sqlsrv/tree/sqlsrv/database.inc?h=7.x-2.x
  */
 class Connection extends \Maleficarum\Database\Shard\Connection\AbstractConnection {
     /* ------------------------------------ AbstractConnection methods START --------------------------- */
+
+    /**
+     * How many params can be bound using \PDOStatement::bindValue
+     * It's set to 2000 to leave some "space" for some rare cases.
+     * @see KNOWN_LIMITATION_2100
+     */
+    const STATEMENT_PARAMS_LIMIT = 2000;
+
+    /**
+     * @link https://docs.microsoft.com/en-us/sql/sql-server/maximum-capacity-specifications-for-sql-server
+     */
+    const KNOWN_LIMITATION_2100 = 'KNOWN_LIMITATION_2100';
+
+    /**
+     * You can not put enormous amount of values in `IN` clause.
+     * See "Remarks" in manual linked below
+     * @link https://docs.microsoft.com/en-us/sql/t-sql/language-elements/in-transact-sql
+     */
+    const KNOWN_LIMITATION_8623 = 'KNOWN_LIMITATION_8623';
 
     /**
      * @see \Maleficarum\Database\Shard\Connection\AbstractConnection::connect()
@@ -37,10 +62,22 @@ class Connection extends \Maleficarum\Database\Shard\Connection\AbstractConnecti
     /* ------------------------------------ Class Methods START ---------------------------------------- */
 
     /**
+     * Sets proper driver name
+     */
+    public function __construct()
+    {
+        parent::__construct('sqlsrv', self::STATEMENT_PARAMS_LIMIT);
+    }
+
+    /**
      * @see \Maleficarum\Database\Shard\Connection\AbstractConnection::getConnectionParams()
      */
     protected function getConnectionParams(): array {
-        return ['sqlsrv:Server=' . $this->getHost() . ',' . $this->getPort() . ';Database=' . $this->getDbname(), $this->getUsername(), $this->getPassword()];
+        return [
+            $this->getDriverName() . ':Server=' . $this->getHost() . ',' . $this->getPort() . ';Database=' . $this->getDbname(),
+            $this->getUsername(),
+            $this->getPassword()
+        ];
     }
 
     /**
@@ -48,8 +85,6 @@ class Connection extends \Maleficarum\Database\Shard\Connection\AbstractConnecti
      */
     public function lockTable(string $table, string $mode = 'ACCESS EXCLUSIVE'): \Maleficarum\Database\Shard\Connection\AbstractConnection {
         throw new \RuntimeException('Not implemented yet.');
-
-        return $this;
     }
 
     /* ------------------------------------ Class Methods END ------------------------------------------ */

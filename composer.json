@@ -7,6 +7,11 @@
     "maleficarum/ioc": "^2.0",
     "maleficarum/data": "^2.0"
   },
+  "require-dev": {
+    "phpunit/phpunit": "6.3.*",
+    "maleficarum/config": "^2.0",
+    "maleficarum/profiler": "^2.0"
+  },
   "suggest": {
     "ext-pgsql": "In order to use PostgreSQL",
     "ext-sqlsrv": "In order to use Microsoft SQL Server"
@@ -14,6 +19,11 @@
   "autoload": {
     "psr-4": {
       "Maleficarum\\Database\\": "src/Database/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Maleficarum\\Database\\Tests\\": "tests/"
     }
   },
   "repositories": [

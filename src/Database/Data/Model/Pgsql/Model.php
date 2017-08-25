@@ -46,13 +46,13 @@ abstract class Model extends \Maleficarum\Database\Data\Model\AbstractModel {
         // attach returning
         $query .= ' RETURNING *;';
 
-        // prepare the statement if necessary
-        array_key_exists(static::class . '::' . __FUNCTION__, self::$st) or self::$st[static::class . '::' . __FUNCTION__] = $shard->prepare($query);
-
-        // bind parameters
+        $queryParams = [];
         foreach ($data as $el) {
-            $type = is_bool($el['value']) ? \PDO::PARAM_BOOL : \PDO::PARAM_STR;
-            self::$st[static::class . '::' . __FUNCTION__]->bindValue($el['param'], $el['value'], $type);
+            $queryParams[$el['param']] = $el['value'];
+        }
+        // prepare the statement if necessary
+        if (!array_key_exists(static::class . '::' . __FUNCTION__, self::$st)) {
+            self::$st[static::class . '::' . __FUNCTION__] = $shard->prepareStatement($query, $queryParams);
         }
 
         // execute the query
@@ -74,7 +74,10 @@ abstract class Model extends \Maleficarum\Database\Data\Model\AbstractModel {
 
         // build the query
         $query = 'SELECT * FROM "' . $this->getTable() . '" WHERE "' . $this->getIdColumn() . '" = :id';
-        array_key_exists(static::class . '::' . __FUNCTION__, self::$st) or self::$st[static::class . '::' . __FUNCTION__] = $shard->prepare($query);
+        $queryParams = [':id' => $this->getId()];
+        if (!array_key_exists(static::class . '::' . __FUNCTION__, self::$st)) {
+            self::$st[static::class . '::' . __FUNCTION__] = $shard->prepareStatement($query, $queryParams);
+        }
 
         // bind query params
         self::$st[static::class . '::' . __FUNCTION__]->bindValue(":id", $this->getId());
@@ -113,17 +116,17 @@ abstract class Model extends \Maleficarum\Database\Data\Model\AbstractModel {
         // conclude query building
         $query .= 'WHERE "' . $this->getIdColumn() . '" = :id RETURNING *';
 
-        // prepare the statement if necessary
-        array_key_exists(static::class . '::' . __FUNCTION__, self::$st) or self::$st[static::class . '::' . __FUNCTION__] = $shard->prepare($query);
-
-        // bind parameters
+        $queryParams = [];
         foreach ($data as $el) {
-            $type = is_bool($el['value']) ? \PDO::PARAM_BOOL : \PDO::PARAM_STR;
-            self::$st[static::class . '::' . __FUNCTION__]->bindValue($el['param'], $el['value'], $type);
+            $queryParams[$el['param']] = $el['value'];
+        }
+        $queryParams[':id'] = $this->getId();
+        // prepare the statement if necessary
+        if (!array_key_exists(static::class . '::' . __FUNCTION__, self::$st)) {
+            self::$st[static::class . '::' . __FUNCTION__] = $shard->prepareStatement($query, $queryParams);
         }
 
-        // bind ID and execute
-        self::$st[static::class . '::' . __FUNCTION__]->bindValue(":id", $this->getId());
+        // execute
         self::$st[static::class . '::' . __FUNCTION__]->execute();
 
         // refresh current data with data returned from the database
@@ -142,7 +145,10 @@ abstract class Model extends \Maleficarum\Database\Data\Model\AbstractModel {
 
         // build the query
         $query = 'DELETE FROM "' . $this->getTable() . '" WHERE "' . $this->getIdColumn() . '" = :id';
-        array_key_exists(static::class . '::' . __FUNCTION__, self::$st) or self::$st[static::class . '::' . __FUNCTION__] = $shard->prepare($query);
+        $queryParams = [':id' => $this->getId()];
+        if (!array_key_exists(static::class . '::' . __FUNCTION__, self::$st)) {
+            self::$st[static::class . '::' . __FUNCTION__] = $shard->prepareStatement($query, $queryParams);
+        }
 
         // bind ID and execute
         self::$st[static::class . '::' . __FUNCTION__]->bindValue(":id", $this->getId());

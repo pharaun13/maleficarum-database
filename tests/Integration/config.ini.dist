@@ -1,0 +1,19 @@
+; Copy this to /tests/Integration/config.ini and adjust so MSSQL connection can be established
+; Please make sure given database has table as described in [SomeCollection] section
+[SomeCollection]
+shard = "no"
+table = "products"
+idColumn = "product_id"
+propertyColumn = "shop_id"
+
+[database]
+shards[] = "no"
+routes['__DEFAULT__'] = "no"
+
+[database_shards]
+no['host'] = '127.0.0.1'
+no['port'] = '1433'
+no['user'] = 'maleficarum'
+no['password'] = 'maleficarum'
+no['dbName'] = 'dev_no'
+no['driver'] = 'Mssql'

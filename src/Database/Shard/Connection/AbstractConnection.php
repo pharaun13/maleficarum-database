@@ -6,8 +6,33 @@ declare (strict_types=1);
 
 namespace Maleficarum\Database\Shard\Connection;
 
-abstract class AbstractConnection {
+use Maleficarum\Database\Exception\Exception;
+
+/**
+ * Wrapper for plain \PDO that unifies various databases even more
+ *
+ * @method bool inTransaction()
+ * @method \PDOStatement|false query($statement, $mode = \PDO::ATTR_DEFAULT_FETCH_MODE, $arg3 = null, array $ctorargs = [])
+ */
+abstract class AbstractConnection
+{
     /* ------------------------------------ Class Property START --------------------------------------- */
+
+    /**
+     * PDO driver name, eg. 'pgsql'
+     *
+     * @var string
+     */
+    protected $driverName = 'abstract';
+
+    /**
+     * Some databases have a limit when it comes to statement parameter count, eg. MSSQL has 2100
+     * NULL means no limit.
+     *
+     * @var int|null
+     * @see \Maleficarum\Database\Shard\Connection\Mssql\Connection::STATEMENT_PARAMS_LIMIT
+     */
+    protected $statementParamCountLimit;
 
     /**
      * Internal storage for the PDO connection.
@@ -53,19 +78,31 @@ abstract class AbstractConnection {
 
     /* ------------------------------------ Class Property END ----------------------------------------- */
 
+    /**
+     * @param string   $driverName               eg. pgsql
+     * @param int|null $statementParamCountLimit Some databases have a limit when it comes to statement parameter
+     *                                           count, eg. MSSQL has 2100
+     */
+    public function __construct(string $driverName, int $statementParamCountLimit = null)
+    {
+        $this->setDriverName($driverName);
+        $this->statementParamCountLimit = $statementParamCountLimit;
+    }
+
     /* ------------------------------------ Magic methods START ---------------------------------------- */
 
     /**
      * Method call delegation to the wrapped PDO instance
      *
      * @param string $name
-     * @param array $args
+     * @param array  $args
      *
      * @return mixed
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
      */
-    public function __call(string $name, array $args) {
+    public function __call(string $name, array $args)
+    {
         if (is_null($this->connection)) {
             throw new \RuntimeException(sprintf('Cannot execute DB methods prior to establishing a connection. \%s::__call()', static::class));
         }
@@ -85,9 +122,15 @@ abstract class AbstractConnection {
      * Connect this instance to a database engine.
      *
      * @return \Maleficarum\Database\Shard\Connection\AbstractConnection
+     * @throws Exception
      */
-    public function connect(): \Maleficarum\Database\Shard\Connection\AbstractConnection {
-        $this->connection = \Maleficarum\Ioc\Container::get('PDO', ['parameters' => $this->getConnectionParams()]);
+    public function connect(): \Maleficarum\Database\Shard\Connection\AbstractConnection
+    {
+        try {
+            $this->connection = \Maleficarum\Ioc\Container::get('PDO', $this->getConnectionParams());
+        } catch (\PDOException $pex) {
+            throw Exception::fromPDOException($pex, $this);
+        }
 
         return $this;
     }
@@ -97,8 +140,53 @@ abstract class AbstractConnection {
      *
      * @returns bool
      */
-    public function isConnected(): bool {
+    public function isConnected(): bool
+    {
         return !is_null($this->connection);
+    }
+
+    /**
+     * @param       $statement
+     * @param array $driver_options
+     *
+     * @deprecated Please use 'prepareStatement' instead as it is more reliable.
+     */
+    public function prepare($statement, array $driver_options = [])
+    {
+        throw new \LogicException("Please use 'prepareStatement' instead as it is more reliable.");
+    }
+
+    /**
+     * Returns prepared statement that has all parameters bound and necessary driver options set
+     *
+     * This method should be preferred over direct use of AbstractConnection::prepare / \PDO::prepare
+     * as it makes sure everything will work properly with various databases.
+     *
+     * @param string $query       eg. SELECT * FROM users WHERE id = :id OR name = :name
+     * @param array  $queryParams eg. [':id' => 123, ':name' => 'David']
+     *
+     * @return \PDOStatement
+     * @throws \Maleficarum\Database\Exception\Exception if trying to use too many query params
+     */
+    public function prepareStatement(string $query, array $queryParams): \PDOStatement
+    {
+        $statement = $this->connection->prepare($query);
+
+        $queryParamCount = count($queryParams);
+        if ($this->hasStmtParamCountLimit() && $queryParamCount > $this->getStmtParamCountLimit()) {
+            throw new Exception(
+                "You're trying to set {$queryParamCount} statement parameters. "
+                . "Database driver '{$this->getDriverName()}' supports up to {$this->statementParamCountLimit} parameters."
+                );
+        }
+
+        // bind parameters
+        foreach ($queryParams as $key => $val) {
+            $type = is_bool($val) ? \PDO::PARAM_BOOL : \PDO::PARAM_STR;
+            $statement->bindValue($key, $val, $type);
+        }
+
+        return $statement;
     }
 
     /* ------------------------------------ Class Methods END ------------------------------------------ */
@@ -126,52 +214,105 @@ abstract class AbstractConnection {
 
     /* ------------------------------------ Setters & Getters START ------------------------------------ */
 
-    public function getHost(): ?string {
+    public function getHost(): ?string
+    {
         return $this->host;
     }
 
-    public function setHost(string $host): \Maleficarum\Database\Shard\Connection\AbstractConnection {
+    public function setHost(string $host): \Maleficarum\Database\Shard\Connection\AbstractConnection
+    {
         $this->host = $host;
 
         return $this;
     }
 
-    public function getPort(): ?int {
+    public function getPort(): ?int
+    {
         return $this->port;
     }
 
-    public function setPort(int $port): \Maleficarum\Database\Shard\Connection\AbstractConnection {
+    public function setPort(int $port): \Maleficarum\Database\Shard\Connection\AbstractConnection
+    {
         $this->port = $port;
 
         return $this;
     }
 
-    public function getDbname(): ?string {
+    public function getDbname(): ?string
+    {
         return $this->dbname;
     }
 
-    public function setDbname(string $dbname): \Maleficarum\Database\Shard\Connection\AbstractConnection {
+    public function setDbname(string $dbname): \Maleficarum\Database\Shard\Connection\AbstractConnection
+    {
         $this->dbname = $dbname;
 
         return $this;
     }
 
-    public function getUsername(): ?string {
+    public function getUsername(): ?string
+    {
         return $this->username;
     }
 
-    public function setUsername(string $username): \Maleficarum\Database\Shard\Connection\AbstractConnection {
+    public function setUsername(string $username): \Maleficarum\Database\Shard\Connection\AbstractConnection
+    {
         $this->username = $username;
 
         return $this;
     }
 
-    public function getPassword(): ?string {
+    public function getPassword(): ?string
+    {
         return $this->password;
     }
 
-    public function setPassword(string $password): \Maleficarum\Database\Shard\Connection\AbstractConnection {
+    public function setPassword(string $password): \Maleficarum\Database\Shard\Connection\AbstractConnection
+    {
         $this->password = $password;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDriverName(): string
+    {
+        return $this->driverName;
+    }
+
+    /**
+     * Has statement param count limit?
+     *
+     * @return bool
+     */
+    public function hasStmtParamCountLimit(): bool
+    {
+        return (null !== $this->statementParamCountLimit);
+    }
+
+    /**
+     * Get statement param count limit
+     *
+     * @return int|null
+     */
+    public function getStmtParamCountLimit(): ?int
+    {
+        return $this->statementParamCountLimit;
+    }
+
+    /**
+     * @param string $driverName
+     *
+     * @return $this
+     */
+    private function setDriverName(string $driverName): AbstractConnection
+    {
+        if (empty($driverName)) {
+            throw new \InvalidArgumentException('Database driver name must be provided.');
+        }
+        $this->driverName = $driverName;
 
         return $this;
     }
