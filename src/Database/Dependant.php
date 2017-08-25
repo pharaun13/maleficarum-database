@@ -35,7 +35,7 @@ trait Dependant {
      *
      * @param \Maleficarum\Database\Shard\Manager $db
      *
-     * @return \Maleficarum\Database\Dependant
+     * @return $this
      */
     public function setDb(\Maleficarum\Database\Shard\Manager $db) {
         $this->db = $db;
@@ -46,7 +46,7 @@ trait Dependant {
     /**
      * Unassign the current database connection manager object.
      *
-     * @return \Maleficarum\Database\Dependant
+     * @return $this
      */
     public function detachDb() {
         $this->db = null;

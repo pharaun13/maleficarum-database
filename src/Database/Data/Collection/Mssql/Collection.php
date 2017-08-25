@@ -125,8 +125,6 @@ abstract class Collection extends \Maleficarum\Database\Data\Collection\Abstract
      */
     protected function populate_lock(string $query, \stdClass $dto): string {
         throw new \RuntimeException('Not implemented yet.');
-
-        return $query;
     }
 
     /**
@@ -148,8 +146,6 @@ abstract class Collection extends \Maleficarum\Database\Data\Collection\Abstract
      */
     protected function populate_subset(string $query, \stdClass $dto): string {
         throw new \RuntimeException('Not implemented yet.');
-
-        return $query;
     }
 
     /**
@@ -189,20 +185,7 @@ abstract class Collection extends \Maleficarum\Database\Data\Collection\Abstract
         }
         $sql .= implode(', ', $sets);
 
-        // fetch a shard connection
-        $shard = $this->getDb()->fetchShard($this->getShardRoute());
-
-        // lazy connections - establish a connection if necessary
-        $shard->isConnected() or $shard->connect();
-
-        // prepare statement
-        $st = $shard->prepare($sql);
-
-        // bind parameters
-        foreach ($params as $key => $val) {
-            $type = is_bool($val) ? \PDO::PARAM_BOOL : \PDO::PARAM_STR;
-            $st->bindValue($key, $val, $type);
-        }
+        $st = $this->prepareStatement($sql, $params);
 
         // execute the query
         $st->execute();
@@ -251,19 +234,7 @@ abstract class Collection extends \Maleficarum\Database\Data\Collection\Abstract
         }
         $sql .= implode(' OR ', $sets);
 
-        // fetch a shard connection
-        $shard = $this->getDb()->fetchShard($this->getShardRoute());
-
-        // lazy connections - establish a connection if necessary
-        $shard->isConnected() or $shard->connect();
-
-        // prepare statement
-        $st = $shard->prepare($sql);
-
-        // bind parameters
-        foreach ($params as $key => $val) {
-            $st->bindValue($key, $val);
-        }
+        $st = $this->prepareStatement($sql, $params);
 
         // execute the query
         $st->execute();

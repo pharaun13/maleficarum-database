@@ -6,6 +6,8 @@ declare (strict_types=1);
 
 namespace Maleficarum\Database\Data\Collection;
 
+use Maleficarum\Database\Exception\Exception;
+
 abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractCollection {
     /* ------------------------------------ Class Traits START ----------------------------------------- */
 
@@ -13,6 +15,11 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
      * \Maleficarum\Api\Database\Dependant
      */
     use \Maleficarum\Database\Dependant;
+
+    /**
+     * This is used when database it self has no preferences or limits
+     */
+    private $preferredBatchSize = 2000;
 
     /* ------------------------------------ Class Traits END ------------------------------------------- */
 
@@ -74,8 +81,41 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
         // attach lock directive (caution - this can cause deadlocks when used incorrectly)
         array_key_exists('__lock', $data) and $query = $this->populate_lock($query, $dto);
 
-        // fetch data from storage
-        $this->populate_fetchData($query, $dto);
+        $paramsLimit = $this->getShard()->getStmtParamCountLimit();
+        if (!$this->getShard()->hasStmtParamCountLimit() || count($dto->params) <= $paramsLimit) {
+            // it's enough to fetch all in single batch
+            // fetch data from storage
+            $this->populate_fetchData($query, $dto);
+        } else {
+            $columnWithManyValuesCount = 0;
+            $multipleValuesColumnName = null;
+            $singleValueColumns = [];
+            foreach ($data as $columnName => $columnValues) {
+                if (count($columnValues) > 1) {
+                    $multipleValuesColumnName = $columnName;
+                    ++$columnWithManyValuesCount;
+                } else {
+                    $singleValueColumns[$columnName] = $columnValues;
+                }
+            }
+            if ($columnWithManyValuesCount > 1) {
+                throw new Exception("It's not possible to fetch such a big collection with more than one criteria column"
+                    . " containing multiple values.");
+            }
+
+            // try to fetch data in batches
+            $batchLimit = $paramsLimit - count($singleValueColumns);
+            $batches = array_chunk($data[$multipleValuesColumnName], $batchLimit);
+            $allBatchesData = [];
+            foreach ($batches as $batch) {
+                $batchData = $singleValueColumns;
+                $batchData[$multipleValuesColumnName] = $batch;
+                $this->populate($batchData);
+                $allBatchesData = array_merge($allBatchesData, $this->data);
+            }
+            $this->data = $allBatchesData;
+            unset($allBatchesData);
+        }
 
         // format all data entries
         $this->format();
@@ -175,24 +215,29 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
      * @return \Maleficarum\Database\Data\Collection\AbstractCollection
      */
     protected function populate_fetchData(string $query, \stdClass $dto): \Maleficarum\Database\Data\Collection\AbstractCollection {
-        // fetch a shard connection
-        $shard = $this->getDb()->fetchShard($this->getShardRoute());
-
-        // lazy connections - establish a connection if necessary
-        $shard->isConnected() or $shard->connect();
-
-        // prepare statement
-        $st = $shard->prepare($query);
-
-        // bind parameters
-        foreach ($dto->params as $key => $val) {
-            $st->bindValue($key, $val, is_bool($val) ? \PDO::PARAM_BOOL : \PDO::PARAM_STR);
-        }
-
+        $st = $this->prepareStatement($query, $dto->params);
         $st->execute();
         $this->data = $st->fetchAll(\PDO::FETCH_ASSOC);
 
         return $this;
+    }
+
+    /**
+     * Makes sure DB Shard is available and prepares a statement - binds all given params
+     *
+     * @param string $query
+     * @param array  $queryParams
+     *
+     * @return \PDOStatement
+     */
+    protected function prepareStatement(string $query, array $queryParams = []): \PDOStatement
+    {
+        // fetch a shard connection
+        $shard = $this->getShard();
+        // lazy connections - establish a connection if necessary
+        $shard->isConnected() or $shard->connect();
+
+        return $shard->prepareStatement($query, $queryParams);
     }
 
     /**
@@ -218,6 +263,31 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
      */
     protected function format(): \Maleficarum\Database\Data\Collection\AbstractCollection {
         return $this;
+    }
+
+    /**
+     * If you decide to send a lot of data to/from database in batches that's the preferred batch size
+     *
+     * @return int
+     */
+    protected function getBatchSize(): int
+    {
+        $batchSize = $this->preferredBatchSize;
+        $shard = $this->getShard();
+
+        if ($shard->hasStmtParamCountLimit()) {
+            $batchSize = $shard->getStmtParamCountLimit();
+        }
+
+        return $batchSize;
+    }
+
+    /**
+     * @return \Maleficarum\Database\Shard\Connection\AbstractConnection
+     */
+    protected function getShard(): \Maleficarum\Database\Shard\Connection\AbstractConnection
+    {
+        return $this->getDb()->fetchShard($this->getShardRoute());
     }
 
     /* ------------------------------------ Class Methods END ------------------------------------------ */

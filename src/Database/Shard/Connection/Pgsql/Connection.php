@@ -12,10 +12,21 @@ class Connection extends \Maleficarum\Database\Shard\Connection\AbstractConnecti
     /* ------------------------------------ Class Methods START ---------------------------------------- */
 
     /**
+     */
+    public function __construct()
+    {
+        parent::__construct('pgsql');
+    }
+
+    /**
      * @see \Maleficarum\Database\Shard\Connection\AbstractConnection::getConnectionParams()
      */
     protected function getConnectionParams(): array {
-        return ['pgsql:host=' . $this->getHost() . ';port=' . $this->getPort() . ';dbname=' . $this->getDbname() . ';user=' . $this->getUsername() . ';password=' . $this->getPassword()];
+        return [
+            $this->getDriverName() . ':host=' . $this->getHost() . ';port=' . $this->getPort() . ';dbname=' . $this->getDbname(),
+            $this->getUsername(),
+            $this->getPassword()
+        ];
     }
 
     /**

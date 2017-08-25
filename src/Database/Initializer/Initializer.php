@@ -61,10 +61,13 @@ class Initializer {
             });
 
             \Maleficarum\Ioc\Container::register('PDO', function ($dep, $opts) {
-                $pdo = new \PDO(...$opts['parameters']);
+                $pdoParams = $opts;
+                unset($pdoParams['__class']); // some "magic" key added by Container
+                $pdo = new \PDO(...$pdoParams);
 
                 $args = [$pdo];
                 if (isset($dep['Maleficarum\Profiler\Database'])) {
+                    /* @var \Maleficarum\Profiler\Database $profiler */
                     $profiler = $dep['Maleficarum\Profiler\Database'];
                     array_push($args, function (array $data) use ($profiler) {
                         $profiler->addQuery($data['start'], $data['end'], $data['queryString'], $data['params']);
