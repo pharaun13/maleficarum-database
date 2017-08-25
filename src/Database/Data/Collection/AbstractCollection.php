@@ -82,7 +82,7 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
         array_key_exists('__lock', $data) and $query = $this->populate_lock($query, $dto);
 
         $paramsLimit = $this->getShard()->getStmtParamCountLimit();
-        if (!$this->getShard()->hasStmtParamCountLimit() || count($dto->params) <= $paramsLimit) {
+        if ($this->getShard()->hasNoStmtParamCountLimit() || count($dto->params) <= $paramsLimit) {
             // it's enough to fetch all in single batch
             // fetch data from storage
             $this->populate_fetchData($query, $dto);
