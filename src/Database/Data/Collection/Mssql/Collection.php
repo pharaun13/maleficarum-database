@@ -163,35 +163,54 @@ abstract class Collection extends \Maleficarum\Database\Data\Collection\Abstract
         // setup data set
         $data = $this->prepareElements('INSERT');
 
-        // setup containers
-        $sets = [];
-        $params = [];
+        $columnCount = count(array_keys($data[0]));
+        $rowCount = count($data);
+        $paramsRequired = $columnCount * $rowCount;
+        if ($this->getShard()->hasNoStmtParamCountLimit() || $paramsRequired <= $this->getShard()->getStmtParamCountLimit()) {
+            // it's enough to fetch all in single batch
+            // setup containers
+            $sets = [];
+            $params = [];
 
-        // generate basic query
-        $sql = 'INSERT INTO "' . $this->getTable() . '" ("' . implode('", "', array_keys($data[0])) . '") OUTPUT inserted.* VALUES ';
+            // generate basic query
+            $sql = 'INSERT INTO "' . $this->getTable() . '" ("' . implode('", "', array_keys($data[0])) . '") OUTPUT inserted.* VALUES ';
 
-        // attach params to the query
-        foreach ($data as $key => $val) {
-            $result = [];
-            array_walk($val, function ($local_value, $local_key) use (&$result, $key) {
-                $result[':' . $local_key . '_token_' . $key] = $local_value;
-            });
+            // attach params to the query
+            foreach ($data as $key => $val) {
+                $result = [];
+                array_walk($val, function ($local_value, $local_key) use (&$result, $key) {
+                    $result[':' . $local_key . '_token_' . $key] = $local_value;
+                });
 
-            // append sets
-            $sets[] = "(" . implode(', ', array_keys($result)) . ")";
+                // append sets
+                $sets[] = "(" . implode(', ', array_keys($result)) . ")";
 
-            // append bind params
-            $params = array_merge($params, $result);
+                // append bind params
+                $params = array_merge($params, $result);
+            }
+            $sql .= implode(', ', $sets);
+
+            $st = $this->prepareStatement($sql, $params);
+
+            // execute the query
+            $st->execute();
+
+            // replace current data by returned data if returning was requested
+            $this->setData($st->fetchAll(\PDO::FETCH_ASSOC))->format();
+        } else {
+            $batchSize = (int) floor($this->getShard()->getStmtParamCountLimit() / $columnCount);
+            $batches = array_chunk($data, $batchSize);
+            $allBatchesData = [];
+            foreach ($batches as $batch) {
+                $this->setData($batch);
+                $this->insertAll();
+                $allBatchesData = array_merge($allBatchesData, $this->data);
+            }
+
+            $this->setData($allBatchesData);
         }
-        $sql .= implode(', ', $sets);
 
-        $st = $this->prepareStatement($sql, $params);
-
-        // execute the query
-        $st->execute();
-
-        // replace current data by returned data if returning was requested
-        $this->setData($st->fetchAll(\PDO::FETCH_ASSOC))->format();
+        $this->format();
 
         return $this;
     }
