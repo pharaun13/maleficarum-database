@@ -180,9 +180,29 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
      * @return \Maleficarum\Database\Data\Collection\AbstractCollection
      */
     protected function populate_fetchData(string $query, \stdClass $dto): \Maleficarum\Database\Data\Collection\AbstractCollection {
-        $st = $this->prepareStatement($query, $dto->params);
-        $st->execute();
-        $this->data = $st->fetchAll(\PDO::FETCH_ASSOC);
+        if (!$this->getShard()->hasStmtParamCountLimit() || count($dto->params) <= $this->getShard()->getStmtParamCountLimit()) {
+            // it's enough to fetch all in single batch
+            $st = $this->prepareStatement($query, $dto->params);
+            $st->execute();
+            $this->data = $st->fetchAll(\PDO::FETCH_ASSOC);
+        } else {
+            // prepare multiple batches
+            // REFACTOR: ? separate method so we know it's safe to populate in batches?
+            $maxBatchSize = $this->getShard()->getStmtParamCountLimit();
+            ksort($dto->params, SORT_NATURAL); // so we can remove them from query safely
+            $allParamNames = array_keys($dto->params);
+            $paramsPerBatch = array_chunk($dto->params, $maxBatchSize, true);
+            $allBatchesData = [];
+            foreach ($paramsPerBatch as $iBatchParams) {
+                $iBatchParamNames = array_keys($iBatchParams);
+                $iBatchQuery = Tools::withoutQueryParams($query, array_diff($allParamNames, $iBatchParamNames));
+                $this->data = [];
+                $this->populate_fetchData($iBatchQuery, (object) ['params' => $iBatchParams]);
+                $allBatchesData = array_merge($allBatchesData, $this->data);
+            }
+
+            $this->data = $allBatchesData;
+        }
 
         return $this;
     }
@@ -198,7 +218,7 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
     protected function prepareStatement(string $query, array $queryParams = []): \PDOStatement
     {
         // fetch a shard connection
-        $shard = $this->getDb()->fetchShard($this->getShardRoute());
+        $shard = $this->getShard();
         // lazy connections - establish a connection if necessary
         $shard->isConnected() or $shard->connect();
 
@@ -238,13 +258,21 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
     protected function getBatchSize(): int
     {
         $batchSize = $this->preferredBatchSize;
-        $shard = $this->getDb()->fetchShard($this->getShardRoute());
+        $shard = $this->getShard();
 
         if ($shard->hasStmtParamCountLimit()) {
             $batchSize = $shard->getStmtParamCountLimit();
         }
 
         return $batchSize;
+    }
+
+    /**
+     * @return \Maleficarum\Database\Shard\Connection\AbstractConnection
+     */
+    protected function getShard(): \Maleficarum\Database\Shard\Connection\AbstractConnection
+    {
+        return $this->getDb()->fetchShard($this->getShardRoute());
     }
 
     /* ------------------------------------ Class Methods END ------------------------------------------ */
