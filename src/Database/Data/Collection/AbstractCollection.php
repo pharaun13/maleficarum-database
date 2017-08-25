@@ -87,16 +87,30 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
             // fetch data from storage
             $this->populate_fetchData($query, $dto);
         } else {
-            if (count($data) > 1) {
-                throw new Exception("It's not possible to fetch such a big collection with more than one criteria column.");
+            $columnWithManyValuesCount = 0;
+            $multipleValuesColumnName = null;
+            $singleValueColumns = [];
+            foreach ($data as $columnName => $columnValues) {
+                if (count($columnValues) > 1) {
+                    $multipleValuesColumnName = $columnName;
+                    ++$columnWithManyValuesCount;
+                } else {
+                    $singleValueColumns[$columnName] = $columnValues;
+                }
+            }
+            if ($columnWithManyValuesCount > 1) {
+                throw new Exception("It's not possible to fetch such a big collection with more than one criteria column"
+                    . " containing multiple values.");
             }
 
             // try to fetch data in batches
-            $keyName = array_keys($data)[0];
-            $batches = array_chunk($data[$keyName], $paramsLimit);
+            $batchLimit = $paramsLimit - count($singleValueColumns);
+            $batches = array_chunk($data[$multipleValuesColumnName], $batchLimit);
             $allBatchesData = [];
             foreach ($batches as $batch) {
-                $this->populate([$keyName => $batch]);
+                $batchData = $singleValueColumns;
+                $batchData[$multipleValuesColumnName] = $batch;
+                $this->populate($batchData);
                 $allBatchesData = array_merge($allBatchesData, $this->data);
             }
             $this->data = $allBatchesData;
