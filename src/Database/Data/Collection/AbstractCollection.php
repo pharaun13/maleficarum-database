@@ -6,6 +6,8 @@ declare (strict_types=1);
 
 namespace Maleficarum\Database\Data\Collection;
 
+use Maleficarum\Database\Exception\Exception;
+
 abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractCollection {
     /* ------------------------------------ Class Traits START ----------------------------------------- */
 
@@ -79,8 +81,27 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
         // attach lock directive (caution - this can cause deadlocks when used incorrectly)
         array_key_exists('__lock', $data) and $query = $this->populate_lock($query, $dto);
 
-        // fetch data from storage
-        $this->populate_fetchData($query, $dto);
+        $paramsLimit = $this->getShard()->getStmtParamCountLimit();
+        if (!$this->getShard()->hasStmtParamCountLimit() || count($dto->params) <= $paramsLimit) {
+            // it's enough to fetch all in single batch
+            // fetch data from storage
+            $this->populate_fetchData($query, $dto);
+        } else {
+            if (count($data) > 1) {
+                throw new Exception("It's not possible to fetch such a big collection with more than one criteria column.");
+            }
+
+            // try to fetch data in batches
+            $keyName = array_keys($data)[0];
+            $batches = array_chunk($data[$keyName], $paramsLimit);
+            $allBatchesData = [];
+            foreach ($batches as $batch) {
+                $this->populate([$keyName => $batch]);
+                $allBatchesData = array_merge($allBatchesData, $this->data);
+            }
+            $this->data = $allBatchesData;
+            unset($allBatchesData);
+        }
 
         // format all data entries
         $this->format();
@@ -180,29 +201,9 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
      * @return \Maleficarum\Database\Data\Collection\AbstractCollection
      */
     protected function populate_fetchData(string $query, \stdClass $dto): \Maleficarum\Database\Data\Collection\AbstractCollection {
-        if (!$this->getShard()->hasStmtParamCountLimit() || count($dto->params) <= $this->getShard()->getStmtParamCountLimit()) {
-            // it's enough to fetch all in single batch
-            $st = $this->prepareStatement($query, $dto->params);
-            $st->execute();
-            $this->data = $st->fetchAll(\PDO::FETCH_ASSOC);
-        } else {
-            // prepare multiple batches
-            // REFACTOR: ? separate method so we know it's safe to populate in batches?
-            $maxBatchSize = $this->getShard()->getStmtParamCountLimit();
-            ksort($dto->params, SORT_NATURAL); // so we can remove them from query safely
-            $allParamNames = array_keys($dto->params);
-            $paramsPerBatch = array_chunk($dto->params, $maxBatchSize, true);
-            $allBatchesData = [];
-            foreach ($paramsPerBatch as $iBatchParams) {
-                $iBatchParamNames = array_keys($iBatchParams);
-                $iBatchQuery = Tools::withoutQueryParams($query, array_diff($allParamNames, $iBatchParamNames));
-                $this->data = [];
-                $this->populate_fetchData($iBatchQuery, (object) ['params' => $iBatchParams]);
-                $allBatchesData = array_merge($allBatchesData, $this->data);
-            }
-
-            $this->data = $allBatchesData;
-        }
+        $st = $this->prepareStatement($query, $dto->params);
+        $st->execute();
+        $this->data = $st->fetchAll(\PDO::FETCH_ASSOC);
 
         return $this;
     }
