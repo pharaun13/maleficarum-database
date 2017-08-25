@@ -293,6 +293,14 @@ abstract class AbstractConnection
     }
 
     /**
+     * @return bool
+     */
+    public function hasNoStmtParamCountLimit(): bool
+    {
+        return (! $this->hasStmtParamCountLimit());
+    }
+
+    /**
      * Get statement param count limit
      *
      * @return int|null
