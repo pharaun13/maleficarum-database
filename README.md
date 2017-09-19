@@ -1,6 +1,10 @@
 # Change Log
 This is the Maleficarum Database component. It carries classes used to persist data in storage.
 
+## [4.1.1] - 2017-09-19
+### Fixed
+- MSSQL Model not reusing prepared statements as driver has [a bug](https://github.com/Microsoft/msphpsql/issues/60)  
+
 ## [4.1.0] - 2017-08-25
 ### Changed
 - Being able to insert huge collections from MS SQL Server

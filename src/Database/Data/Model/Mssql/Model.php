@@ -51,10 +51,9 @@ abstract class Model extends \Maleficarum\Database\Data\Model\AbstractModel {
         foreach ($data as $el) {
             $queryParams[$el['param']] = $el['value'];
         }
-        // prepare the statement if necessary
-        if (!array_key_exists(static::class . '::' . __FUNCTION__, self::$st)) {
-            self::$st[static::class . '::' . __FUNCTION__] = $shard->prepareStatement($query, $queryParams);
-        }
+        // prepare new statement every time as MSSQL driver has some issues
+        // @link https://github.com/Microsoft/msphpsql/issues/60
+        self::$st[static::class . '::' . __FUNCTION__] = $shard->prepareStatement($query, $queryParams);
 
         // execute the query
         self::$st[static::class . '::' . __FUNCTION__]->execute();
@@ -77,9 +76,9 @@ abstract class Model extends \Maleficarum\Database\Data\Model\AbstractModel {
         // build the query
         $query = 'SELECT * FROM "' . $this->getTable() . '" WHERE "' . $this->getIdColumn() . '" = :id';
         $queryParams = [':id' => $this->getId()];
-        if (!array_key_exists(static::class . '::' . __FUNCTION__, self::$st)) {
-            self::$st[static::class . '::' . __FUNCTION__] = $shard->prepareStatement($query, $queryParams);
-        }
+        // prepare new statement every time as MSSQL driver has some issues
+        // @link https://github.com/Microsoft/msphpsql/issues/60
+        self::$st[static::class . '::' . __FUNCTION__] = $shard->prepareStatement($query, $queryParams);
 
         if (!self::$st[static::class . '::' . __FUNCTION__]->execute() || count($result = self::$st[static::class . '::' . __FUNCTION__]->fetch()) === 0) {
             throw new \RuntimeException('No entity found - ID: ' . $this->getId() . '. ' . static::class . '::read()');
@@ -119,10 +118,9 @@ abstract class Model extends \Maleficarum\Database\Data\Model\AbstractModel {
             $queryParams[$el['param']] = $el['value'];
         }
         $queryParams[':id'] = $this->getId();
-        // prepare the statement if necessary
-        if (!array_key_exists(static::class . '::' . __FUNCTION__, self::$st)) {
-            self::$st[static::class . '::' . __FUNCTION__] = $shard->prepareStatement($query, $queryParams);
-        }
+        // prepare new statement every time as MSSQL driver has some issues
+        // @link https://github.com/Microsoft/msphpsql/issues/60
+        self::$st[static::class . '::' . __FUNCTION__] = $shard->prepareStatement($query, $queryParams);
 
         // bind ID and execute
         self::$st[static::class . '::' . __FUNCTION__]->execute();
@@ -145,9 +143,9 @@ abstract class Model extends \Maleficarum\Database\Data\Model\AbstractModel {
         // build the query
         $query = 'DELETE FROM "' . $this->getTable() . '" WHERE "' . $this->getIdColumn() . '" = :id';
         $queryParams = [':id' => $this->getId()];
-        if (!array_key_exists(static::class . '::' . __FUNCTION__, self::$st)) {
-            self::$st[static::class . '::' . __FUNCTION__] = $shard->prepareStatement($query, $queryParams);
-        }
+        // prepare new statement every time as MSSQL driver has some issues
+        // @link https://github.com/Microsoft/msphpsql/issues/60
+        self::$st[static::class . '::' . __FUNCTION__] = $shard->prepareStatement($query, $queryParams);
 
         self::$st[static::class . '::' . __FUNCTION__]->execute();
 
