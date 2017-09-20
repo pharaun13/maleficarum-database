@@ -12,8 +12,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Making sure we can use Collection with MSSQL
  */
-class CollectionTest extends TestCase
-{
+class CollectionTest extends TestCase {
     /**
      * @var \Maleficarum\Config\AbstractConfig
      */
@@ -24,15 +23,13 @@ class CollectionTest extends TestCase
      */
     private $database;
 
-    public function setUp()
-    {
+    public function setUp() {
         parent::setUp();
         $this->initConfig();
         $this->initDatabase();
     }
 
-    public function testFetchCollectionOfLessThanMssqlParameterCountLimit()
-    {
+    public function testFetchCollectionOfLessThanMssqlParameterCountLimit() {
         $shard = $this->config['SomeCollection']['shard'];
         $table = $this->config['SomeCollection']['table'];
         $idColumn = $this->config['SomeCollection']['idColumn'];
@@ -44,8 +41,7 @@ class CollectionTest extends TestCase
         self::assertGreaterThan(0, $collection->count(), 'It should be possible to ask for less items than MS SQL limit.');
     }
 
-    public function testFetchCollectionOfMoreThanMssqlParameterCountLimit()
-    {
+    public function testFetchCollectionOfMoreThanMssqlParameterCountLimit() {
         $shard = $this->config['SomeCollection']['shard'];
         $table = $this->config['SomeCollection']['table'];
         $idColumn = $this->config['SomeCollection']['idColumn'];
@@ -58,8 +54,7 @@ class CollectionTest extends TestCase
         self::assertGreaterThan(0, $collection->count(), 'It should be possible to ask for more items than MS SQL limit.');
     }
 
-    public function testFetchCollectionOfMoreThanMssqlParameterCountLimitAndManyCriteriaColumns()
-    {
+    public function testFetchCollectionOfMoreThanMssqlParameterCountLimitAndManyCriteriaColumns() {
         $shard = $this->config['SomeCollection']['shard'];
         $table = $this->config['SomeCollection']['table'];
         $idColumn = $this->config['SomeCollection']['idColumn'];
@@ -76,8 +71,7 @@ class CollectionTest extends TestCase
     /**
      * @return void
      */
-    private function initDatabase()
-    {
+    private function initDatabase() {
         try {
             Container::registerDependency('Maleficarum\Config', $this->config);
             Initializer::initialize();
@@ -94,8 +88,7 @@ class CollectionTest extends TestCase
     /**
      * @return void
      */
-    private function initConfig()
-    {
+    private function initConfig() {
         try {
             $this->config = new Config(__DIR__ . '/../config.ini');
         } catch (\Throwable $tex) {

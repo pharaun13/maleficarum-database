@@ -11,10 +11,8 @@ use PHPUnit\Framework\TestCase;
 /**
  * Make sure we can initialize Database in Maleficarum based project
  */
-class InitializerTest extends TestCase
-{
-    public function testInitialize()
-    {
+class InitializerTest extends TestCase {
+    public function testInitialize() {
         $config = new Config(__DIR__ . '/../config.ini.dist');
         Container::registerDependency('Maleficarum\Config', $config);
 

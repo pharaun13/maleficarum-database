@@ -3,8 +3,9 @@
  * This class provides CRUD implementation specific to MSSQL database.
  *
  * NOTICE:
- * If you're insane and wish to have a Model with over \Maleficarum\Database\Shard\Connection\Mssql\Connection::PDO_PARAMS_LIMIT
- * properties (columns) this class might not work properly because of prepared statements caching ;)
+ * If you're insane and wish to have a Model with over
+ * \Maleficarum\Database\Shard\Connection\Mssql\Connection::PDO_PARAMS_LIMIT properties (columns) this class might not
+ * work properly because of prepared statements caching ;)
  */
 declare (strict_types=1);
 
@@ -51,15 +52,12 @@ abstract class Model extends \Maleficarum\Database\Data\Model\AbstractModel {
         foreach ($data as $el) {
             $queryParams[$el['param']] = $el['value'];
         }
-        // prepare the statement if necessary
-        if (!array_key_exists(static::class . '::' . __FUNCTION__, self::$st)) {
-            self::$st[static::class . '::' . __FUNCTION__] = $shard->prepareStatement($query, $queryParams);
-        }
+        $statement = $shard->prepareStatement($query, $queryParams, true);
 
         // execute the query
-        self::$st[static::class . '::' . __FUNCTION__]->execute();
+        $statement->execute();
 
-        $returnData = self::$st[static::class . '::' . __FUNCTION__]->fetch();
+        $returnData = $statement->fetch();
         // set new model ID if possible
         is_array($returnData) and $this->merge($returnData);
 
@@ -77,11 +75,9 @@ abstract class Model extends \Maleficarum\Database\Data\Model\AbstractModel {
         // build the query
         $query = 'SELECT * FROM "' . $this->getTable() . '" WHERE "' . $this->getIdColumn() . '" = :id';
         $queryParams = [':id' => $this->getId()];
-        if (!array_key_exists(static::class . '::' . __FUNCTION__, self::$st)) {
-            self::$st[static::class . '::' . __FUNCTION__] = $shard->prepareStatement($query, $queryParams);
-        }
+        $statement = $shard->prepareStatement($query, $queryParams, true);
 
-        if (!self::$st[static::class . '::' . __FUNCTION__]->execute() || count($result = self::$st[static::class . '::' . __FUNCTION__]->fetch()) === 0) {
+        if (!$statement->execute() || count($result = $statement->fetch()) === 0) {
             throw new \RuntimeException('No entity found - ID: ' . $this->getId() . '. ' . static::class . '::read()');
         }
 
@@ -119,16 +115,12 @@ abstract class Model extends \Maleficarum\Database\Data\Model\AbstractModel {
             $queryParams[$el['param']] = $el['value'];
         }
         $queryParams[':id'] = $this->getId();
-        // prepare the statement if necessary
-        if (!array_key_exists(static::class . '::' . __FUNCTION__, self::$st)) {
-            self::$st[static::class . '::' . __FUNCTION__] = $shard->prepareStatement($query, $queryParams);
-        }
+        $statement = $shard->prepareStatement($query, $queryParams, true);
 
-        // bind ID and execute
-        self::$st[static::class . '::' . __FUNCTION__]->execute();
+        $statement->execute();
 
         // refresh current data with data returned from the database
-        $returnedData = self::$st[static::class . '::' . __FUNCTION__]->fetch();
+        $returnedData = $statement->fetch();
         is_array($returnedData) and $this->merge($returnedData);
 
         return $this;
@@ -145,11 +137,9 @@ abstract class Model extends \Maleficarum\Database\Data\Model\AbstractModel {
         // build the query
         $query = 'DELETE FROM "' . $this->getTable() . '" WHERE "' . $this->getIdColumn() . '" = :id';
         $queryParams = [':id' => $this->getId()];
-        if (!array_key_exists(static::class . '::' . __FUNCTION__, self::$st)) {
-            self::$st[static::class . '::' . __FUNCTION__] = $shard->prepareStatement($query, $queryParams);
-        }
+        $statement = $shard->prepareStatement($query, $queryParams, true);
 
-        self::$st[static::class . '::' . __FUNCTION__]->execute();
+        $statement->execute();
 
         return $this;
     }

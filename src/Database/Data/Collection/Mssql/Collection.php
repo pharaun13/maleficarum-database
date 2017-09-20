@@ -198,7 +198,7 @@ abstract class Collection extends \Maleficarum\Database\Data\Collection\Abstract
             // replace current data by returned data if returning was requested
             $this->setData($st->fetchAll(\PDO::FETCH_ASSOC))->format();
         } else {
-            $batchSize = (int) floor($this->getShard()->getStmtParamCountLimit() / $columnCount);
+            $batchSize = (int)floor($this->getShard()->getStmtParamCountLimit() / $columnCount);
             $batches = array_chunk($data, $batchSize);
             $allBatchesData = [];
             foreach ($batches as $batch) {

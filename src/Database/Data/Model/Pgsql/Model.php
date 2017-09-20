@@ -50,16 +50,12 @@ abstract class Model extends \Maleficarum\Database\Data\Model\AbstractModel {
         foreach ($data as $el) {
             $queryParams[$el['param']] = $el['value'];
         }
-        // prepare the statement if necessary
-        if (!array_key_exists(static::class . '::' . __FUNCTION__, self::$st)) {
-            self::$st[static::class . '::' . __FUNCTION__] = $shard->prepareStatement($query, $queryParams);
-        }
+        $statement = $shard->prepareStatement($query, $queryParams, true);
 
-        // execute the query
-        self::$st[static::class . '::' . __FUNCTION__]->execute();
+        $statement->execute();
 
         // set new model ID if possible
-        $this->merge(self::$st[static::class . '::' . __FUNCTION__]->fetch());
+        $this->merge($statement->fetch());
 
         return $this;
     }
@@ -75,18 +71,14 @@ abstract class Model extends \Maleficarum\Database\Data\Model\AbstractModel {
         // build the query
         $query = 'SELECT * FROM "' . $this->getTable() . '" WHERE "' . $this->getIdColumn() . '" = :id';
         $queryParams = [':id' => $this->getId()];
-        if (!array_key_exists(static::class . '::' . __FUNCTION__, self::$st)) {
-            self::$st[static::class . '::' . __FUNCTION__] = $shard->prepareStatement($query, $queryParams);
-        }
+        $statement = $shard->prepareStatement($query, $queryParams, true);
 
-        // bind query params
-        self::$st[static::class . '::' . __FUNCTION__]->bindValue(":id", $this->getId());
-        if (!self::$st[static::class . '::' . __FUNCTION__]->execute() || self::$st[static::class . '::' . __FUNCTION__]->rowCount() !== 1) {
+        if (!$statement->execute() || $statement->rowCount() !== 1) {
             throw new \RuntimeException('No entity found - ID: ' . $this->getId() . '. ' . static::class . '::read()');
         }
 
         // fetch results and merge them into this object
-        $result = self::$st[static::class . '::' . __FUNCTION__]->fetch();
+        $result = $statement->fetch();
         $this->merge($result);
 
         return $this;
@@ -121,16 +113,13 @@ abstract class Model extends \Maleficarum\Database\Data\Model\AbstractModel {
             $queryParams[$el['param']] = $el['value'];
         }
         $queryParams[':id'] = $this->getId();
-        // prepare the statement if necessary
-        if (!array_key_exists(static::class . '::' . __FUNCTION__, self::$st)) {
-            self::$st[static::class . '::' . __FUNCTION__] = $shard->prepareStatement($query, $queryParams);
-        }
 
-        // execute
-        self::$st[static::class . '::' . __FUNCTION__]->execute();
+        $statement = $shard->prepareStatement($query, $queryParams, true);
+
+        $statement->execute();
 
         // refresh current data with data returned from the database
-        $this->merge(self::$st[static::class . '::' . __FUNCTION__]->fetch());
+        $this->merge($statement->fetch());
 
         return $this;
     }
@@ -146,13 +135,9 @@ abstract class Model extends \Maleficarum\Database\Data\Model\AbstractModel {
         // build the query
         $query = 'DELETE FROM "' . $this->getTable() . '" WHERE "' . $this->getIdColumn() . '" = :id';
         $queryParams = [':id' => $this->getId()];
-        if (!array_key_exists(static::class . '::' . __FUNCTION__, self::$st)) {
-            self::$st[static::class . '::' . __FUNCTION__] = $shard->prepareStatement($query, $queryParams);
-        }
+        $statement = $shard->prepareStatement($query, $queryParams, true);
 
-        // bind ID and execute
-        self::$st[static::class . '::' . __FUNCTION__]->bindValue(":id", $this->getId());
-        self::$st[static::class . '::' . __FUNCTION__]->execute();
+        $statement->execute();
 
         return $this;
     }

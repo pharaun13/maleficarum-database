@@ -16,17 +16,6 @@ abstract class AbstractModel extends \Maleficarum\Data\Model\AbstractModel {
 
     /* ------------------------------------ Class Traits END ------------------------------------------- */
 
-    /* ------------------------------------ Class Property START --------------------------------------- */
-
-    /**
-     * Internal cache storage for prepared PDO statements.
-     *
-     * @var \PDOStatement[]
-     */
-    protected static $st = [];
-
-    /* ------------------------------------ Class Property END ----------------------------------------- */
-
     /* ------------------------------------ Class Methods START ---------------------------------------- */
 
     /**
@@ -39,7 +28,8 @@ abstract class AbstractModel extends \Maleficarum\Data\Model\AbstractModel {
     }
 
     /**
-     * This method returns an array of properties to be used in INSERT and UPDATE CRUD operations. The format for each entry is as follows:
+     * This method returns an array of properties to be used in INSERT and UPDATE CRUD operations. The format for each
+     * entry is as follows:
      *
      * $entry['param'] = ':bindParamName';
      * $entry['value'] = 'Param value (as used during the bind process)';
