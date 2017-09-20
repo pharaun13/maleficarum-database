@@ -31,7 +31,7 @@ class Manager {
      * Attach a shard to the specified route.
      *
      * @param \Maleficarum\Database\Shard\Connection\AbstractConnection $shard
-     * @param string $route
+     * @param string                                                    $route
      *
      * @return \Maleficarum\Database\Shard\Manager
      * @throws \InvalidArgumentException

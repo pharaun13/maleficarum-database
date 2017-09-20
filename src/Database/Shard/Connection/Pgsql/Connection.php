@@ -13,8 +13,7 @@ class Connection extends \Maleficarum\Database\Shard\Connection\AbstractConnecti
 
     /**
      */
-    public function __construct()
-    {
+    public function __construct() {
         parent::__construct('pgsql');
     }
 

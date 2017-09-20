@@ -37,7 +37,7 @@ class Profiled extends \PDOStatement {
     /**
      * Initialize a new Statement instance and allow for trailer injection.
      *
-     * @param \PDO $pdo
+     * @param \PDO     $pdo
      * @param \Closure $profiler
      */
     protected function __construct(\PDO $pdo, \Closure $profiler = null) {
@@ -54,7 +54,7 @@ class Profiled extends \PDOStatement {
      *
      * @param mixed $parameter
      * @param mixed $value
-     * @param int $dataType
+     * @param int   $dataType
      *
      * @return bool
      */
@@ -80,8 +80,8 @@ class Profiled extends \PDOStatement {
     /**
      * By default fetch assoc.
      *
-     * @param int $fetch_style
-     * @param int $fetch_argument
+     * @param int   $fetch_style
+     * @param int   $fetch_argument
      * @param array $ctor_args
      *
      * @return mixed

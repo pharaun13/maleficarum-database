@@ -5,8 +5,7 @@ namespace Maleficarum\Database\Tests\Integration\Mssql;
 
 use Maleficarum\Database\Data\Collection\Mssql\Collection;
 
-class SomeCollection extends Collection
-{
+class SomeCollection extends Collection {
     /**
      * @var string
      */
@@ -24,11 +23,10 @@ class SomeCollection extends Collection
 
     /**
      * @param string $shardRoute eg. 'dk'
-     * @param string $table eg. 'products'
-     * @param string $idColumn eg. 'product_id'
+     * @param string $table      eg. 'products'
+     * @param string $idColumn   eg. 'product_id'
      */
-    public function __construct(string $shardRoute, string $table, string $idColumn)
-    {
+    public function __construct(string $shardRoute, string $table, string $idColumn) {
         $this->shardRoute = $shardRoute;
         $this->table = $table;
         $this->idColumn = $idColumn;
@@ -39,8 +37,7 @@ class SomeCollection extends Collection
      *
      * @return string
      */
-    public function getShardRoute(): string
-    {
+    public function getShardRoute(): string {
         return $this->shardRoute;
     }
 
@@ -49,8 +46,7 @@ class SomeCollection extends Collection
      *
      * @return string
      */
-    protected function getTable(): string
-    {
+    protected function getTable(): string {
         return $this->table;
     }
 
@@ -59,8 +55,7 @@ class SomeCollection extends Collection
      *
      * @return null|string
      */
-    protected function getIdColumn(): ?string
-    {
+    protected function getIdColumn(): ?string {
         return $this->idColumn;
     }
 
@@ -69,8 +64,7 @@ class SomeCollection extends Collection
      *
      * @return null|string
      */
-    protected function getOrderColumn(): ?string
-    {
+    protected function getOrderColumn(): ?string {
         return null;
     }
 
@@ -79,8 +73,7 @@ class SomeCollection extends Collection
      *
      * @return array
      */
-    protected function getSortColumns(): array
-    {
+    protected function getSortColumns(): array {
         return [];
     }
 }
