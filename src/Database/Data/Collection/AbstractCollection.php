@@ -237,8 +237,7 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
         // lazy connections - establish a connection if necessary
         $shard->isConnected() or $shard->connect();
 
-        // PERFORMANCE: We could enable statements cache one day
-        return $shard->prepareStatement($query, $queryParams, false);
+        return $shard->prepareStatement($query, $queryParams, true);
     }
 
     /**
