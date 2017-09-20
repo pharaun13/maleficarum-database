@@ -18,6 +18,8 @@ This is the Maleficarum Database component. It carries classes used to persist d
 - Being able to insert huge collections from MS SQL Server
 
 ## [4.0.0] - 2017-08-25
+> NOTICE!!!
+> Please use >= 4.1.1 as this one has a serious bug
 ### Changed
 - Being able to fetch huge collections from MS SQL Server
 - NOTICE: `\Maleficarum\Database\Shard\Connection\AbstractConnection::prepare` has been deprecated
