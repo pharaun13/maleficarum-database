@@ -22,6 +22,7 @@ class Connection extends \Maleficarum\Database\Shard\Connection\AbstractConnecti
     /**
      * How many params can be bound using \PDOStatement::bindValue
      * It's set to 2000 to leave some "space" for some rare cases.
+     *
      * @see KNOWN_LIMITATION_2100
      */
     const STATEMENT_PARAMS_LIMIT = 2000;
@@ -34,6 +35,7 @@ class Connection extends \Maleficarum\Database\Shard\Connection\AbstractConnecti
     /**
      * You can not put enormous amount of values in `IN` clause.
      * See "Remarks" in manual linked below
+     *
      * @link https://docs.microsoft.com/en-us/sql/t-sql/language-elements/in-transact-sql
      */
     const KNOWN_LIMITATION_8623 = 'KNOWN_LIMITATION_8623';
@@ -64,8 +66,7 @@ class Connection extends \Maleficarum\Database\Shard\Connection\AbstractConnecti
     /**
      * Sets proper driver name
      */
-    public function __construct()
-    {
+    public function __construct() {
         parent::__construct('sqlsrv', self::STATEMENT_PARAMS_LIMIT);
     }
 

@@ -3,8 +3,9 @@
  * This class provides CRUD implementation specific to MSSQL database.
  *
  * NOTICE:
- * If you're insane and wish to have a Model with over \Maleficarum\Database\Shard\Connection\Mssql\Connection::PDO_PARAMS_LIMIT
- * properties (columns) this class might not work properly because of prepared statements caching ;)
+ * If you're insane and wish to have a Model with over
+ * \Maleficarum\Database\Shard\Connection\Mssql\Connection::PDO_PARAMS_LIMIT properties (columns) this class might not
+ * work properly because of prepared statements caching ;)
  */
 declare (strict_types=1);
 

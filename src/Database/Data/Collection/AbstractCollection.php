@@ -179,7 +179,8 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
     }
 
     /**
-     * Test provided data object for existence of the __lock directive and check if it can be applied in current connection state.
+     * Test provided data object for existence of the __lock directive and check if it can be applied in current
+     * connection state.
      *
      * @param array $data
      *
@@ -209,7 +210,7 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
     /**
      * Fetch data based on query and dto->params from the storage.
      *
-     * @param string $query
+     * @param string    $query
      * @param \stdClass $dto
      *
      * @return \Maleficarum\Database\Data\Collection\AbstractCollection
@@ -230,8 +231,7 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
      *
      * @return \PDOStatement
      */
-    protected function prepareStatement(string $query, array $queryParams = []): \PDOStatement
-    {
+    protected function prepareStatement(string $query, array $queryParams = []): \PDOStatement {
         // fetch a shard connection
         $shard = $this->getShard();
         // lazy connections - establish a connection if necessary
@@ -242,7 +242,8 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
 
     /**
      * Fetch current data set as a prepared set used by modification methods (insertAll(), deleteAll()).
-     * This method should be overridden in collections that need to behave differently than using a 1:1 mapping of the main data container.
+     * This method should be overridden in collections that need to behave differently than using a 1:1 mapping of the
+     * main data container.
      *
      * @param string $mode
      *
@@ -256,8 +257,9 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
     }
 
     /**
-     * Iterate over all current data entries and perform any data formatting necessary. This method should be overloaded in any inheriting collection object
-     * that requires any specific data decoding such as JSON de-serialization or date formatting.
+     * Iterate over all current data entries and perform any data formatting necessary. This method should be
+     * overloaded in any inheriting collection object that requires any specific data decoding such as JSON
+     * de-serialization or date formatting.
      *
      * @return \Maleficarum\Database\Data\Collection\AbstractCollection
      */
@@ -270,8 +272,7 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
      *
      * @return int
      */
-    protected function getBatchSize(): int
-    {
+    protected function getBatchSize(): int {
         $batchSize = $this->preferredBatchSize;
         $shard = $this->getShard();
 
@@ -285,8 +286,7 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
     /**
      * @return \Maleficarum\Database\Shard\Connection\AbstractConnection
      */
-    protected function getShard(): \Maleficarum\Database\Shard\Connection\AbstractConnection
-    {
+    protected function getShard(): \Maleficarum\Database\Shard\Connection\AbstractConnection {
         return $this->getDb()->fetchShard($this->getShardRoute());
     }
 
@@ -295,7 +295,8 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
     /* ------------------------------------ Abstract methods START ------------------------------------- */
 
     /**
-     * Initialize the query with a proper prepend section. By default the prepend section is empty and should be overloaded when necessary.
+     * Initialize the query with a proper prepend section. By default the prepend section is empty and should be
+     * overloaded when necessary.
      *
      * @param \stdClass $dto
      *
@@ -306,7 +307,7 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
     /**
      * Fetch initial populate query segment.
      *
-     * @param string $query
+     * @param string    $query
      * @param \stdClass $dto
      *
      * @return string
@@ -316,7 +317,7 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
     /**
      * Fetch a query with filter syntax attached.
      *
-     * @param string $query
+     * @param string    $query
      * @param \stdClass $dto
      *
      * @return string
@@ -326,7 +327,7 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
     /**
      * Fetch the grouping query segment.
      *
-     * @param string $query
+     * @param string    $query
      * @param \stdClass $dto
      *
      * @return string
@@ -336,7 +337,7 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
     /**
      * Attach the locking directive to the query.
      *
-     * @param string $query
+     * @param string    $query
      * @param \stdClass $dto
      *
      * @return string
@@ -346,7 +347,7 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
     /**
      * Fetch the sorting query segment.
      *
-     * @param string $query
+     * @param string    $query
      * @param \stdClass $dto
      *
      * @return string
@@ -356,7 +357,7 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
     /**
      * Fetch the subset query segment.
      *
-     * @param string $query
+     * @param string    $query
      * @param \stdClass $dto
      *
      * @return string
