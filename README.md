@@ -1,6 +1,17 @@
 # Change Log
 This is the Maleficarum Database component. It carries classes used to persist data in storage.
 
+## [4.1.2] - 2017-09-20
+### Changed
+- `\Maleficarum\Database\Shard\Connection\AbstractConnection::prepareStatement` able to re-use prepared statements
+### Fixed
+- Model using prepared statements in a wrong way
+- Reverting 4.1.1 as it was not a bug in the driver but in my brain
+
+## [4.1.1] - 2017-09-19
+### Fixed
+- MSSQL Model not reusing prepared statements as driver has [a bug](https://github.com/Microsoft/msphpsql/issues/60)  
+
 ## [4.1.0] - 2017-08-25
 ### Changed
 - Being able to insert huge collections from MS SQL Server

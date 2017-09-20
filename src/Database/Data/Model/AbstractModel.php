@@ -16,17 +16,6 @@ abstract class AbstractModel extends \Maleficarum\Data\Model\AbstractModel {
 
     /* ------------------------------------ Class Traits END ------------------------------------------- */
 
-    /* ------------------------------------ Class Property START --------------------------------------- */
-
-    /**
-     * Internal cache storage for prepared PDO statements.
-     *
-     * @var \PDOStatement[]
-     */
-    protected static $st = [];
-
-    /* ------------------------------------ Class Property END ----------------------------------------- */
-
     /* ------------------------------------ Class Methods START ---------------------------------------- */
 
     /**

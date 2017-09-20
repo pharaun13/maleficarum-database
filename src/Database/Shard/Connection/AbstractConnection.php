@@ -76,6 +76,11 @@ abstract class AbstractConnection
      */
     protected $password = null;
 
+    /**
+     * @var array [string crc32(query) => \PDOStatement, ...]
+     */
+    private $statementsCache;
+
     /* ------------------------------------ Class Property END ----------------------------------------- */
 
     /**
@@ -87,6 +92,7 @@ abstract class AbstractConnection
     {
         $this->setDriverName($driverName);
         $this->statementParamCountLimit = $statementParamCountLimit;
+        $this->statementsCache = [];
     }
 
     /* ------------------------------------ Magic methods START ---------------------------------------- */
@@ -164,20 +170,25 @@ abstract class AbstractConnection
      *
      * @param string $query       eg. SELECT * FROM users WHERE id = :id OR name = :name
      * @param array  $queryParams eg. [':id' => 123, ':name' => 'David']
+     * @param bool   $enableCache if TRUE then the same queries [crc32($query)] will reuse prepared statement
+     *                            Set to TRUE for performance optimization.
      *
      * @return \PDOStatement
      * @throws \Maleficarum\Database\Exception\Exception if trying to use too many query params
      */
-    public function prepareStatement(string $query, array $queryParams): \PDOStatement
+    public function prepareStatement(string $query, array $queryParams, bool $enableCache = false): \PDOStatement
     {
-        $statement = $this->connection->prepare($query);
-
-        $queryParamCount = count($queryParams);
-        if ($this->hasStmtParamCountLimit() && $queryParamCount > $this->getStmtParamCountLimit()) {
-            throw new Exception(
-                "You're trying to set {$queryParamCount} statement parameters. "
-                . "Database driver '{$this->getDriverName()}' supports up to {$this->statementParamCountLimit} parameters."
-                );
+        if ($enableCache) {
+            if (isset($this->statementsCache[crc32($query)])) {
+                $statement = $this->statementsCache[crc32($query)];
+            } else {
+                $this->checkStatementParams($queryParams);
+                $statement = $this->connection->prepare($query);
+                $this->statementsCache[crc32($query)] = $statement;
+            }
+        } else {
+            $this->checkStatementParams($queryParams);
+            $statement = $this->connection->prepare($query);
         }
 
         // bind parameters
@@ -323,6 +334,24 @@ abstract class AbstractConnection
         $this->driverName = $driverName;
 
         return $this;
+    }
+
+    /**
+     * Checks if given params can be used with this connection prepared statements
+     *
+     * @param array  $queryParams eg. [':id' => 123, ':name' => 'David']
+     *
+     * @return void
+     * @throws \Maleficarum\Database\Exception\Exception if trying to use too many query params
+     */
+    private function checkStatementParams(array $queryParams) {
+        $queryParamCount = count($queryParams);
+        if ($this->hasStmtParamCountLimit() && $queryParamCount > $this->getStmtParamCountLimit()) {
+            throw new Exception(
+                "You're trying to set {$queryParamCount} statement parameters. "
+                . "Database driver '{$this->getDriverName()}' supports up to {$this->statementParamCountLimit} parameters."
+            );
+        }
     }
 
     /* ------------------------------------ Setters & Getters END -------------------------------------- */
