@@ -76,7 +76,7 @@ abstract class Model extends \Maleficarum\Database\Data\Model\AbstractModel {
         $statement = $shard->prepareStatement($query, $queryParams, true);
 
         if (!$statement->execute() || $statement->rowCount() !== 1) {
-            throw new EntityNotFoundException(static::class, $this->getId());
+            throw new EntityNotFoundException(static::class, (string)$this->getId());
         }
 
         // fetch results and merge them into this object
