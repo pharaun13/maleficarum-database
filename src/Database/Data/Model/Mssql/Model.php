@@ -11,6 +11,8 @@ declare (strict_types=1);
 
 namespace Maleficarum\Database\Data\Model\Mssql;
 
+use Maleficarum\Database\Exception\EntityNotFoundException;
+
 abstract class Model extends \Maleficarum\Database\Data\Model\AbstractModel {
     /* ------------------------------------ Database\AbstractModel START ------------------------------- */
 
@@ -78,7 +80,7 @@ abstract class Model extends \Maleficarum\Database\Data\Model\AbstractModel {
         $statement = $shard->prepareStatement($query, $queryParams, true);
 
         if (!$statement->execute() || count($result = $statement->fetch()) === 0) {
-            throw new \RuntimeException('No entity found - ID: ' . $this->getId() . '. ' . static::class . '::read()');
+            throw new EntityNotFoundException(static::class, $this->getId());
         }
 
         // fetch results and merge them into this object

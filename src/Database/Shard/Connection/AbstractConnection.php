@@ -7,6 +7,8 @@ declare (strict_types=1);
 namespace Maleficarum\Database\Shard\Connection;
 
 use Maleficarum\Database\Exception\Exception;
+use Maleficarum\Database\Exception\InvalidArgumentException;
+use Maleficarum\Database\Exception\LogicException;
 
 /**
  * Wrapper for plain \PDO that unifies various databases even more
@@ -103,15 +105,15 @@ abstract class AbstractConnection {
      *
      * @return mixed
      * @throws \RuntimeException
-     * @throws \InvalidArgumentException
+     * @throws Exception
      */
     public function __call(string $name, array $args) {
         if (is_null($this->connection)) {
-            throw new \RuntimeException(sprintf('Cannot execute DB methods prior to establishing a connection. \%s::__call()', static::class));
+            throw new Exception(sprintf('Cannot execute DB methods prior to establishing a connection. \%s::__call()', static::class));
         }
 
         if (!method_exists($this->connection, $name)) {
-            throw new \InvalidArgumentException(sprintf('Method %s unsupported by PDO. \%s::__call()', $name, static::class));
+            throw new InvalidArgumentException(sprintf('Method %s unsupported by PDO. \%s::__call()', $name, static::class));
         }
 
         return call_user_func_array([$this->connection, $name], $args);
@@ -153,7 +155,7 @@ abstract class AbstractConnection {
      * @deprecated Please use 'prepareStatement' instead as it is more reliable.
      */
     public function prepare($statement, array $driver_options = []) {
-        throw new \LogicException("Please use 'prepareStatement' instead as it is more reliable.");
+        throw new LogicException("Please use 'prepareStatement' instead as it is more reliable.");
     }
 
     /**
@@ -307,7 +309,7 @@ abstract class AbstractConnection {
      */
     private function setDriverName(string $driverName): AbstractConnection {
         if (empty($driverName)) {
-            throw new \InvalidArgumentException('Database driver name must be provided.');
+            throw new InvalidArgumentException('Database driver name must be provided.');
         }
         $this->driverName = $driverName;
 

@@ -48,7 +48,7 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
      *
      * @param array $data
      *
-     * @return \Maleficarum\Data\Collection\AbstractCollection
+     * @return \Maleficarum\Data\Collection\AbstractCollection|$this
      */
     public function populate(array $data = []): \Maleficarum\Data\Collection\AbstractCollection {
         // apply initial tests
@@ -126,11 +126,11 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
     /**
      * Test database connection.
      *
-     * @return \Maleficarum\Database\Data\Collection\AbstractCollection
+     * @return \Maleficarum\Database\Data\Collection\AbstractCollection|$this
      */
     protected function populate_testDb(): \Maleficarum\Database\Data\Collection\AbstractCollection {
         if (is_null($this->getDb())) {
-            throw new \RuntimeException(sprintf('Cannot populate this collection with data prior to injecting a database shard manager. \%s::populate()', static::class));
+            throw new Exception(sprintf('Cannot populate this collection with data prior to injecting a database shard manager. \%s::populate()', static::class));
         }
 
         return $this;
@@ -141,7 +141,7 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
      *
      * @param array $data
      *
-     * @return \Maleficarum\Database\Data\Collection\AbstractCollection
+     * @return \Maleficarum\Database\Data\Collection\AbstractCollection|$this
      * @throws \InvalidArgumentException
      */
     protected function populate_testSorting(array $data): \Maleficarum\Database\Data\Collection\AbstractCollection {
@@ -165,7 +165,7 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
      *
      * @param array $data
      *
-     * @return \Maleficarum\Database\Data\Collection\AbstractCollection
+     * @return \Maleficarum\Database\Data\Collection\AbstractCollection|$this
      * @throws \InvalidArgumentException
      */
     protected function populate_testSubset(array $data): \Maleficarum\Database\Data\Collection\AbstractCollection {
@@ -184,7 +184,7 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
      *
      * @param array $data
      *
-     * @return \Maleficarum\Database\Data\Collection\AbstractCollection
+     * @return \Maleficarum\Database\Data\Collection\AbstractCollection|$this
      * @throws \InvalidArgumentException
      */
     protected function populate_testLock(array $data): \Maleficarum\Database\Data\Collection\AbstractCollection {
@@ -213,7 +213,7 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
      * @param string    $query
      * @param \stdClass $dto
      *
-     * @return \Maleficarum\Database\Data\Collection\AbstractCollection
+     * @return \Maleficarum\Database\Data\Collection\AbstractCollection|$this
      */
     protected function populate_fetchData(string $query, \stdClass $dto): \Maleficarum\Database\Data\Collection\AbstractCollection {
         $st = $this->prepareStatement($query, $dto->params);
@@ -261,7 +261,7 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
      * overloaded in any inheriting collection object that requires any specific data decoding such as JSON
      * de-serialization or date formatting.
      *
-     * @return \Maleficarum\Database\Data\Collection\AbstractCollection
+     * @return \Maleficarum\Database\Data\Collection\AbstractCollection|$this
      */
     protected function format(): \Maleficarum\Database\Data\Collection\AbstractCollection {
         return $this;
@@ -367,14 +367,14 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
     /**
      * Insert all entries in this collection to it's storage.
      *
-     * @return \Maleficarum\Database\Data\Collection\AbstractCollection
+     * @return \Maleficarum\Database\Data\Collection\AbstractCollection|$this
      */
     abstract public function insertAll(): \Maleficarum\Database\Data\Collection\AbstractCollection;
 
     /**
      * Delete all entries in this collection from it's storage.
      *
-     * @return \Maleficarum\Database\Data\Collection\AbstractCollection
+     * @return \Maleficarum\Database\Data\Collection\AbstractCollection|$this
      */
     abstract public function deleteAll(): \Maleficarum\Database\Data\Collection\AbstractCollection;
 

@@ -103,6 +103,8 @@ abstract class AbstractModel extends \Maleficarum\Data\Model\AbstractModel {
      * Refresh this model with current data from the storage
      *
      * @return \Maleficarum\Database\Data\Model\AbstractModel|$this enables method chaining
+     *
+     * @throws \Maleficarum\Database\Exception\EntityNotFoundException
      */
     abstract public function read(): \Maleficarum\Database\Data\Model\AbstractModel;
 

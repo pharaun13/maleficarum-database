@@ -8,7 +8,7 @@ use Maleficarum\Database\Shard\Connection\AbstractConnection;
 /**
  * Generic Database exception
  */
-class Exception extends \PDOException {
+class Exception extends \PDOException implements DatabaseExceptionInterface {
     /**
      * @param \PDOException      $pex
      * @param AbstractConnection $connection

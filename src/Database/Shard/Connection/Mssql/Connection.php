@@ -3,6 +3,8 @@ declare (strict_types=1);
 
 namespace Maleficarum\Database\Shard\Connection\Mssql;
 
+use Maleficarum\Database\Exception\Exception;
+
 /**
  * Microsoft SQL Server Connection
  *
@@ -85,7 +87,7 @@ class Connection extends \Maleficarum\Database\Shard\Connection\AbstractConnecti
      * @see \Maleficarum\Database\Shard\Connection\AbstractConnection::lockTable()
      */
     public function lockTable(string $table, string $mode = 'ACCESS EXCLUSIVE'): \Maleficarum\Database\Shard\Connection\AbstractConnection {
-        throw new \RuntimeException('Not implemented yet.');
+        throw new Exception('Not implemented yet.');
     }
 
     /* ------------------------------------ Class Methods END ------------------------------------------ */

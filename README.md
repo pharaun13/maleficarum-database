@@ -1,5 +1,14 @@
-# Change Log
+# Maleficarum Database
+
 This is the Maleficarum Database component. It carries classes used to persist data in storage.
+
+# Change Log
+
+## [4.2.0] - 2017-09-29
+### Changed
+- All exceptions implement `\Maleficarum\Database\Exception\DatabaseExceptionInterface`
+- `\Maleficarum\Database\Exception\EntityNotFoundException` introduced in `\Maleficarum\Database\Data\Model\AbstractModel::read`
+- PhpStorm type hinting improved
 
 ## [4.1.2] - 2017-09-20
 ### Changed
