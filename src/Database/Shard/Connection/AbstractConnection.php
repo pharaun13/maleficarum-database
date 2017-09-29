@@ -13,8 +13,11 @@ use Maleficarum\Database\Exception\LogicException;
 /**
  * Wrapper for plain \PDO that unifies various databases even more
  *
+ * @method bool beginTransaction()
+ * @method bool commit()
  * @method bool inTransaction()
  * @method \PDOStatement|false query($statement, $mode = \PDO::ATTR_DEFAULT_FETCH_MODE, $arg3 = null, array $ctorargs = [])
+ * @method bool rollback()
  */
 abstract class AbstractConnection {
     /* ------------------------------------ Class Property START --------------------------------------- */

@@ -9,6 +9,7 @@ This is the Maleficarum Database component. It carries classes used to persist d
 - All exceptions implement `\Maleficarum\Database\Exception\DatabaseExceptionInterface`
 - `\Maleficarum\Database\Exception\EntityNotFoundException` introduced in `\Maleficarum\Database\Data\Model\AbstractModel::read`
 - `\Maleficarum\Database\Errors\Pgsql\Errors` introduced
+- `\Maleficarum\Database\Data\Transaction\Pgsql\TransactionAware` introduced
 - PhpStorm type hinting improved
 
 ## [4.1.2] - 2017-09-20
