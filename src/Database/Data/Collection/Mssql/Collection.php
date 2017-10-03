@@ -6,8 +6,6 @@ declare (strict_types=1);
 
 namespace Maleficarum\Database\Data\Collection\Mssql;
 
-use Maleficarum\Database\Exception\Exception;
-
 abstract class Collection extends \Maleficarum\Database\Data\Collection\AbstractCollection {
     /* ------------------------------------ Class Methods START ---------------------------------------- */
 
@@ -126,7 +124,7 @@ abstract class Collection extends \Maleficarum\Database\Data\Collection\Abstract
      * @see \Maleficarum\Database\Data\Collection\AbstractCollection::populate_lock()
      */
     protected function populate_lock(string $query, \stdClass $dto): string {
-        throw new Exception('Not implemented yet.');
+        throw new \Maleficarum\Database\Exception\Exception('Not implemented yet.');
     }
 
     /**
@@ -147,7 +145,7 @@ abstract class Collection extends \Maleficarum\Database\Data\Collection\Abstract
      * @see \Maleficarum\Database\Data\Collection\AbstractCollection::populate_subset()
      */
     protected function populate_subset(string $query, \stdClass $dto): string {
-        throw new Exception('Not implemented yet.');
+        throw new \Maleficarum\Database\Exception\Exception('Not implemented yet.');
     }
 
     /**

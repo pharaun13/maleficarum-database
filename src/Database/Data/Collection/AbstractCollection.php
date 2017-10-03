@@ -6,8 +6,6 @@ declare (strict_types=1);
 
 namespace Maleficarum\Database\Data\Collection;
 
-use Maleficarum\Database\Exception\Exception;
-
 abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractCollection {
     /* ------------------------------------ Class Traits START ----------------------------------------- */
 
@@ -99,7 +97,7 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
                 }
             }
             if ($columnWithManyValuesCount > 1) {
-                throw new Exception("It's not possible to fetch such a big collection with more than one criteria column"
+                throw new \Maleficarum\Database\Exception\Exception("It's not possible to fetch such a big collection with more than one criteria column"
                     . " containing multiple values.");
             }
 
@@ -130,7 +128,7 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
      */
     protected function populate_testDb(): \Maleficarum\Database\Data\Collection\AbstractCollection {
         if (is_null($this->getDb())) {
-            throw new Exception(sprintf('Cannot populate this collection with data prior to injecting a database shard manager. \%s::populate()', static::class));
+            throw new \Maleficarum\Database\Exception\Exception(sprintf('Cannot populate this collection with data prior to injecting a database shard manager. \%s::populate()', static::class));
         }
 
         return $this;

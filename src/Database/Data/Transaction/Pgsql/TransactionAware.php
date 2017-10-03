@@ -3,9 +3,6 @@ declare(strict_types=1);
 
 namespace Maleficarum\Database\Data\Transaction\Pgsql;
 
-use Maleficarum\Database\Data\Collection\Pgsql\Collection;
-use Maleficarum\Database\Data\Model\Pgsql\Model;
-
 /**
  * This trait defines a set of helper methods for all objects that require transactional database access.
  */
@@ -14,7 +11,7 @@ trait TransactionAware {
     /**
      * Helper method to establish if a shard is in a transaction
      *
-     * @param Collection|Model $object
+     * @param \Maleficarum\Database\Data\Collection\Pgsql\Collection|\Maleficarum\Database\Data\Model\Pgsql\Model $object
      *
      * @return bool
      */
@@ -28,7 +25,7 @@ trait TransactionAware {
     /**
      * Helper method to establish a transaction on a shard.
      *
-     * @param Collection|Model $object
+     * @param \Maleficarum\Database\Data\Collection\Pgsql\Collection|\Maleficarum\Database\Data\Model\Pgsql\Model $object
      *
      * @return $this
      */
@@ -43,7 +40,7 @@ trait TransactionAware {
     /**
      * Helper method to commit a transaction on a shard.
      *
-     * @param Collection|Model $object
+     * @param \Maleficarum\Database\Data\Collection\Pgsql\Collection|\Maleficarum\Database\Data\Model\Pgsql\Model $object
      *
      * @return $this
      */
@@ -57,7 +54,7 @@ trait TransactionAware {
     /**
      * Helper method to rollback a transaction on a shard.
      *
-     * @param Collection|Model $object
+     * @param \Maleficarum\Database\Data\Collection\Pgsql\Collection|\Maleficarum\Database\Data\Model\Pgsql\Model $object
      *
      * @return $this
      *
@@ -73,7 +70,7 @@ trait TransactionAware {
     /**
      * Create an Advisory Lock
      *
-     * @param Collection|Model $object
+     * @param \Maleficarum\Database\Data\Collection\Pgsql\Collection|\Maleficarum\Database\Data\Model\Pgsql\Model $object
      * @param string           $key
      *
      * @return bool
@@ -89,7 +86,7 @@ trait TransactionAware {
     /**
      * Release an Advisory Lock
      *
-     * @param Collection|Model $object
+     * @param \Maleficarum\Database\Data\Collection\Pgsql\Collection|\Maleficarum\Database\Data\Model\Pgsql\Model $object
      * @param string           $key
      *
      * @return bool

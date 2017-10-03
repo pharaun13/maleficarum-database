@@ -6,10 +6,6 @@ declare (strict_types=1);
 
 namespace Maleficarum\Database\Shard\Connection;
 
-use Maleficarum\Database\Exception\Exception;
-use Maleficarum\Database\Exception\InvalidArgumentException;
-use Maleficarum\Database\Exception\LogicException;
-
 /**
  * Wrapper for plain \PDO that unifies various databases even more
  *
@@ -108,15 +104,15 @@ abstract class AbstractConnection {
      *
      * @return mixed
      * @throws \RuntimeException
-     * @throws Exception
+     * @throws \Maleficarum\Database\Exception\Exception
      */
     public function __call(string $name, array $args) {
         if (is_null($this->connection)) {
-            throw new Exception(sprintf('Cannot execute DB methods prior to establishing a connection. \%s::__call()', static::class));
+            throw new \Maleficarum\Database\Exception\Exception(sprintf('Cannot execute DB methods prior to establishing a connection. \%s::__call()', static::class));
         }
 
         if (!method_exists($this->connection, $name)) {
-            throw new InvalidArgumentException(sprintf('Method %s unsupported by PDO. \%s::__call()', $name, static::class));
+            throw new \Maleficarum\Database\Exception\InvalidArgumentException(sprintf('Method %s unsupported by PDO. \%s::__call()', $name, static::class));
         }
 
         return call_user_func_array([$this->connection, $name], $args);
@@ -130,13 +126,13 @@ abstract class AbstractConnection {
      * Connect this instance to a database engine.
      *
      * @return \Maleficarum\Database\Shard\Connection\AbstractConnection
-     * @throws Exception
+     * @throws \Maleficarum\Database\Exception\Exception
      */
     public function connect(): \Maleficarum\Database\Shard\Connection\AbstractConnection {
         try {
             $this->connection = \Maleficarum\Ioc\Container::get('PDO', $this->getConnectionParams());
         } catch (\PDOException $pex) {
-            throw Exception::fromPDOException($pex, $this);
+            throw \Maleficarum\Database\Exception\Exception::fromPDOException($pex, $this);
         }
 
         return $this;
@@ -158,7 +154,7 @@ abstract class AbstractConnection {
      * @deprecated Please use 'prepareStatement' instead as it is more reliable.
      */
     public function prepare($statement, array $driver_options = []) {
-        throw new LogicException("Please use 'prepareStatement' instead as it is more reliable.");
+        throw new \Maleficarum\Database\Exception\LogicException("Please use 'prepareStatement' instead as it is more reliable.");
     }
 
     /**
@@ -312,7 +308,7 @@ abstract class AbstractConnection {
      */
     private function setDriverName(string $driverName): AbstractConnection {
         if (empty($driverName)) {
-            throw new InvalidArgumentException('Database driver name must be provided.');
+            throw new \Maleficarum\Database\Exception\InvalidArgumentException('Database driver name must be provided.');
         }
         $this->driverName = $driverName;
 
@@ -330,7 +326,7 @@ abstract class AbstractConnection {
     private function checkStatementParams(array $queryParams) {
         $queryParamCount = count($queryParams);
         if ($this->hasStmtParamCountLimit() && $queryParamCount > $this->getStmtParamCountLimit()) {
-            throw new Exception(
+            throw new \Maleficarum\Database\Exception\Exception(
                 "You're trying to set {$queryParamCount} statement parameters. "
                 . "Database driver '{$this->getDriverName()}' supports up to {$this->statementParamCountLimit} parameters."
             );
