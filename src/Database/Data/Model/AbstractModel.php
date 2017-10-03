@@ -78,6 +78,8 @@ abstract class AbstractModel extends \Maleficarum\Data\Model\AbstractModel {
 
     /**
      * @see \Maleficarum\Data\Model\AbstractModel::setId()
+     *
+     * @return \Maleficarum\Data\Model\AbstractModel|$this enables method chaining
      */
     public function setId($id): \Maleficarum\Data\Model\AbstractModel {
         $method = 'set' . ucfirst($this->getModelPrefix()) . 'Id';
@@ -93,28 +95,30 @@ abstract class AbstractModel extends \Maleficarum\Data\Model\AbstractModel {
     /**
      * Persist data stored in this model as a new storage entry.
      *
-     * @return \Maleficarum\Database\Data\Model\AbstractModel
+     * @return \Maleficarum\Database\Data\Model\AbstractModel|$this enables method chaining
      */
     abstract public function create(): \Maleficarum\Database\Data\Model\AbstractModel;
 
     /**
      * Refresh this model with current data from the storage
      *
-     * @return \Maleficarum\Database\Data\Model\AbstractModel
+     * @return \Maleficarum\Database\Data\Model\AbstractModel|$this enables method chaining
+     *
+     * @throws \Maleficarum\Database\Exception\EntityNotFoundException
      */
     abstract public function read(): \Maleficarum\Database\Data\Model\AbstractModel;
 
     /**
      * Update storage entry with data currently stored in this model.
      *
-     * @return \Maleficarum\Database\Data\Model\AbstractModel
+     * @return \Maleficarum\Database\Data\Model\AbstractModel|$this enables method chaining
      */
     abstract public function update(): \Maleficarum\Database\Data\Model\AbstractModel;
 
     /**
      * Delete an entry from the storage based on ID data stored in this model
      *
-     * @return \Maleficarum\Database\Data\Model\AbstractModel
+     * @return \Maleficarum\Database\Data\Model\AbstractModel|$this enables method chaining
      */
     abstract public function delete(): \Maleficarum\Database\Data\Model\AbstractModel;
 

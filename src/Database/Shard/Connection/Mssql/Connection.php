@@ -85,7 +85,7 @@ class Connection extends \Maleficarum\Database\Shard\Connection\AbstractConnecti
      * @see \Maleficarum\Database\Shard\Connection\AbstractConnection::lockTable()
      */
     public function lockTable(string $table, string $mode = 'ACCESS EXCLUSIVE'): \Maleficarum\Database\Shard\Connection\AbstractConnection {
-        throw new \RuntimeException('Not implemented yet.');
+        throw new \Maleficarum\Database\Exception\Exception('Not implemented yet.');
     }
 
     /* ------------------------------------ Class Methods END ------------------------------------------ */

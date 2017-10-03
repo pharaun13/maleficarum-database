@@ -34,11 +34,11 @@ class Manager {
      * @param string                                                    $route
      *
      * @return \Maleficarum\Database\Shard\Manager
-     * @throws \InvalidArgumentException
+     * @throws \Maleficarum\Database\Exception\InvalidArgumentException
      */
     public function attachShard(\Maleficarum\Database\Shard\Connection\AbstractConnection $shard, string $route): \Maleficarum\Database\Shard\Manager {
         if (!is_string($route) || !mb_strlen($route)) {
-            throw new \InvalidArgumentException(sprintf('Incorrect route provided - non empty string expected. %s::attachShard()', static::class));
+            throw new \Maleficarum\Database\Exception\InvalidArgumentException(sprintf('Incorrect route provided - non empty string expected. %s::attachShard()', static::class));
         }
 
         $this->routes[$route] = $shard;
@@ -52,11 +52,11 @@ class Manager {
      * @param string $route
      *
      * @return \Maleficarum\Database\Shard\Manager
-     * @throws \InvalidArgumentException
+     * @throws \Maleficarum\Database\Exception\InvalidArgumentException
      */
     public function detachShard(string $route): \Maleficarum\Database\Shard\Manager {
         if (!is_string($route) || !mb_strlen($route)) {
-            throw new \InvalidArgumentException(sprintf('Incorrect route provided - non empty string expected. %s::detachShard()', static::class));
+            throw new \Maleficarum\Database\Exception\InvalidArgumentException(sprintf('Incorrect route provided - non empty string expected. %s::detachShard()', static::class));
         }
 
         if (array_key_exists($route, $this->routes)) {
@@ -71,12 +71,12 @@ class Manager {
      *
      * @param string $route
      *
-     * @throws \InvalidArgumentException
+     * @throws \Maleficarum\Database\Exception\InvalidArgumentException
      * @return \Maleficarum\Database\Shard\Connection\AbstractConnection
      */
     public function fetchShard(string $route): \Maleficarum\Database\Shard\Connection\AbstractConnection {
         if (!is_string($route) || !mb_strlen($route)) {
-            throw new \InvalidArgumentException(sprintf('Incorrect route provided - non empty string expected. %s::fetchShard()', static::class));
+            throw new \Maleficarum\Database\Exception\InvalidArgumentException(sprintf('Incorrect route provided - non empty string expected. %s::fetchShard()', static::class));
         }
 
         if (array_key_exists($route, $this->routes)) {
@@ -86,7 +86,7 @@ class Manager {
             return $this->routes[self::DEFAULT_ROUTE];
         }
 
-        throw new \InvalidArgumentException(sprintf('Impossible to fetch the specified route. %s::fetchShard()', static::class));
+        throw new \Maleficarum\Database\Exception\InvalidArgumentException(sprintf('Impossible to fetch the specified route. %s::fetchShard()', static::class));
     }
 
     /* ------------------------------------ Class Methods END ------------------------------------------ */
