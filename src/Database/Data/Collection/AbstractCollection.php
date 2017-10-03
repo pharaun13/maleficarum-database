@@ -44,7 +44,9 @@ abstract class AbstractCollection extends \Maleficarum\Data\Collection\AbstractC
     /**
      * Populate this collection with data based on filters and options provided in the input parameter.
      *
-     * @param array $data
+     * NOTICE: value for every key provided in `$data` must be an array.
+     *
+     * @param array $data eg. ['someColumn' => ['value1'], 'otherColumn' => [44, 53, 65]]
      *
      * @return \Maleficarum\Data\Collection\AbstractCollection|$this enables method chaining
      */
