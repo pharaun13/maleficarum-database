@@ -3,11 +3,15 @@ declare(strict_types=1);
 
 namespace Maleficarum\Database\Data\Transaction\Pgsql;
 
+use Maleficarum\Database\Exception\InvalidArgumentException;
+
 /**
  * This trait defines a set of helper methods for all objects that require transactional database access.
+ *
+ * @link https://www.postgresql.org/docs/9.5/static/explicit-locking.html#ADVISORY-LOCKS
+ * @link https://vladmihalcea.com/2017/04/12/how-do-postgresql-advisory-locks-work/
  */
 trait TransactionAware {
-
     /**
      * Helper method to establish if a shard is in a transaction
      *
@@ -15,7 +19,7 @@ trait TransactionAware {
      *
      * @return bool
      */
-    protected function isInTransaction($object) {
+    protected function isInTransaction($object): bool {
         $shard = $object->getDb()->fetchShard($object->getShardRoute());
         $shard->isConnected() or $shard->connect();
 
@@ -71,13 +75,25 @@ trait TransactionAware {
      * Create an Advisory Lock
      *
      * @param \Maleficarum\Database\Data\Collection\Pgsql\Collection|\Maleficarum\Database\Data\Model\Pgsql\Model $object
-     * @param string           $key
+     * @param string                                                                                              $key
+     * @param string                                                                                              $lockLevel 'transaction' OR 'session'
      *
-     * @return bool
+     * @return bool TRUE if lock has been created
+     *
+     * @throws InvalidArgumentException if unsupported lock level given
      */
-    protected function createAdvisoryLock($object, $key) {
+    protected function createAdvisoryLock($object, $key, $lockLevel = 'transaction'): bool {
         $shard = $object->getDb()->fetchShard($object->getShardRoute());
-        $query = 'SELECT pg_try_advisory_xact_lock(' . crc32($key) . ');';
+        switch ($lockLevel) {
+            case 'transaction':
+                $query = 'SELECT pg_try_advisory_xact_lock(' . crc32($key) . ');';
+                break;
+            case 'session':
+                $query = 'SELECT pg_try_advisory_lock(' . crc32($key) . ');';
+                break;
+            default:
+                throw new InvalidArgumentException("Unsupported advisory lock level: '{$lockLevel}'. Supported levels: 'transaction', 'session'.");
+        }
 
         return $shard->prepareStatement($query, [])->execute();
     }
@@ -87,11 +103,11 @@ trait TransactionAware {
      * Release an Advisory Lock
      *
      * @param \Maleficarum\Database\Data\Collection\Pgsql\Collection|\Maleficarum\Database\Data\Model\Pgsql\Model $object
-     * @param string           $key
+     * @param string                                                                                              $key
      *
-     * @return bool
+     * @return bool TRUE if lock has been released
      */
-    protected function releaseAdvisoryLock($object, $key) {
+    protected function releaseAdvisoryLock($object, $key): bool {
         $shard = $object->getDb()->fetchShard($object->getShardRoute());
         $query = 'SELECT pg_advisory_unlock(' . crc32($key) . ');';
 

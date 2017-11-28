@@ -68,7 +68,7 @@ abstract class AbstractModel extends \Maleficarum\Data\Model\AbstractModel {
     /* ------------------------------------ Data\AbstractModel methods START --------------------------- */
 
     /**
-     * @see \Maleficarum\Data\Model\AbstractModel::getId()
+     * @inheritdoc
      */
     public function getId() {
         $method = 'get' . ucfirst($this->getModelPrefix()) . 'Id';

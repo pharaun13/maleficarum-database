@@ -4,6 +4,10 @@ This is the Maleficarum Database component. It carries classes used to persist d
 
 # Change Log
 
+## [4.3.0] - 2017-11-28
+### Changed
+- `Pgsql\TransactionAware` supporting `transaction` and `session` level locks
+
 ## [4.2.0] - 2017-09-29
 ### Changed
 - All exceptions implement `\Maleficarum\Database\Exception\DatabaseExceptionInterface`
