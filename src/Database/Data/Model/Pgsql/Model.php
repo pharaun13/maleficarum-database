@@ -61,7 +61,7 @@ abstract class Model extends \Maleficarum\Database\Data\Model\AbstractModel {
     }
 
     /**
-     * @see \Maleficarum\Database\Data\Model\AbstractModel::read()
+     * @inheritdoc
      */
     public function read(): \Maleficarum\Database\Data\Model\AbstractModel {
         // connect to shard if necessary
