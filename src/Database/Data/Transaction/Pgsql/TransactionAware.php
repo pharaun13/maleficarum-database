@@ -19,7 +19,7 @@ trait TransactionAware {
      *
      * @return bool
      */
-    protected function isInTransaction($object) {
+    protected function isInTransaction($object): bool {
         $shard = $object->getDb()->fetchShard($object->getShardRoute());
         $shard->isConnected() or $shard->connect();
 
@@ -78,11 +78,11 @@ trait TransactionAware {
      * @param string                                                                                              $key
      * @param string                                                                                              $lockLevel 'transaction' OR 'session'
      *
-     * @return bool
+     * @return bool TRUE if lock has been created
      *
      * @throws InvalidArgumentException if unsupported lock level given
      */
-    protected function createAdvisoryLock($object, $key, $lockLevel = 'transaction') {
+    protected function createAdvisoryLock($object, $key, $lockLevel = 'transaction'): bool {
         $shard = $object->getDb()->fetchShard($object->getShardRoute());
         switch ($lockLevel) {
             case 'transaction':
@@ -105,9 +105,9 @@ trait TransactionAware {
      * @param \Maleficarum\Database\Data\Collection\Pgsql\Collection|\Maleficarum\Database\Data\Model\Pgsql\Model $object
      * @param string                                                                                              $key
      *
-     * @return bool
+     * @return bool TRUE if lock has been released
      */
-    protected function releaseAdvisoryLock($object, $key) {
+    protected function releaseAdvisoryLock($object, $key): bool {
         $shard = $object->getDb()->fetchShard($object->getShardRoute());
         $query = 'SELECT pg_advisory_unlock(' . crc32($key) . ');';
 
