@@ -230,33 +230,45 @@ abstract class Collection extends \Maleficarum\Database\Data\Collection\Abstract
         // setup data set
         $data = $this->prepareElements('DELETE');
 
-        // setup containers
-        $sets = [];
-        $params = [];
+        $columnCount = count(array_keys($data[0]));
+        $rowCount = count($data);
+        $paramsRequired = $columnCount * $rowCount;
+        if ($this->getShard()->hasNoStmtParamCountLimit() || $paramsRequired <= $this->getShard()->getStmtParamCountLimit()) {
+            // setup containers
+            $sets = [];
+            $params = [];
 
-        // generate basic query
-        $sql = 'DELETE FROM "' . $this->getTable() . '" WHERE ';
-        // attach params to the query
-        foreach ($data as $key => $val) {
-            $values = [];
-            $names = [];
-            array_walk($val, function ($local_value, $local_key) use (&$values, &$names, $key) {
-                $values[':' . $local_key . '_token_' . $key] = $local_value;
-                $names[] = '"' . $local_key . '" = :' . $local_key . '_token_' . $key;
-            });
+            // generate basic query
+            $sql = 'DELETE FROM "' . $this->getTable() . '" WHERE ';
+            // attach params to the query
+            foreach ($data as $key => $val) {
+                $values = [];
+                $names = [];
+                array_walk($val, function ($local_value, $local_key) use (&$values, &$names, $key) {
+                    $values[':' . $local_key . '_token_' . $key] = $local_value;
+                    $names[] = '"' . $local_key . '" = :' . $local_key . '_token_' . $key;
+                });
 
-            // append sets
-            $sets[] = '(' . implode(' AND ', $names) . ')';
+                // append sets
+                $sets[] = '(' . implode(' AND ', $names) . ')';
 
-            // append bind params
-            $params = array_merge($params, $values);
+                // append bind params
+                $params = array_merge($params, $values);
+            }
+            $sql .= implode(' OR ', $sets);
+
+            $st = $this->prepareStatement($sql, $params);
+
+            // execute the query
+            $st->execute();
+        } else {
+            $batchSize = (int)floor($this->getShard()->getStmtParamCountLimit() / $columnCount);
+            $batches = array_chunk($data, $batchSize);
+            foreach ($batches as $batch) {
+                $this->setData($batch);
+                $this->deleteAll();
+            }
         }
-        $sql .= implode(' OR ', $sets);
-
-        $st = $this->prepareStatement($sql, $params);
-
-        // execute the query
-        $st->execute();
 
         return $this;
     }

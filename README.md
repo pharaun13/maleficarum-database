@@ -4,6 +4,10 @@ This is the Maleficarum Database component. It carries classes used to persist d
 
 # Change Log
 
+## [4.4.0] - 2017-12-07
+### Changed
+- Being able to delete huge collections from MS SQL Server
+
 ## [4.3.0] - 2017-11-28
 ### Changed
 - `Pgsql\TransactionAware` supporting `transaction` and `session` level locks
