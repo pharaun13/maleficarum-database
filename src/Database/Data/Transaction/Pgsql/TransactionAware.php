@@ -72,7 +72,7 @@ trait TransactionAware {
     }
 
     /**
-     * Create an Advisory Lock
+     * Create a blocking exclusive advisory lock
      *
      * @param \Maleficarum\Database\Data\Collection\Pgsql\Collection|\Maleficarum\Database\Data\Model\Pgsql\Model $object
      * @param string                                                                                              $key
@@ -81,15 +81,17 @@ trait TransactionAware {
      * @return bool TRUE if lock has been created
      *
      * @throws InvalidArgumentException if unsupported lock level given
+     *
+     * @see https://www.postgresql.org/docs/9.6/static/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS
      */
     protected function createAdvisoryLock($object, $key, $lockLevel = 'transaction'): bool {
         $shard = $object->getDb()->fetchShard($object->getShardRoute());
         switch ($lockLevel) {
             case 'transaction':
-                $query = 'SELECT pg_try_advisory_xact_lock(' . crc32($key) . ');';
+                $query = 'SELECT pg_advisory_xact_lock(' . crc32($key) . ');';
                 break;
             case 'session':
-                $query = 'SELECT pg_try_advisory_lock(' . crc32($key) . ');';
+                $query = 'SELECT pg_advisory_lock(' . crc32($key) . ');';
                 break;
             default:
                 throw new InvalidArgumentException("Unsupported advisory lock level: '{$lockLevel}'. Supported levels: 'transaction', 'session'.");
