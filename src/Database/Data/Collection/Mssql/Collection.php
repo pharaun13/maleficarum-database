@@ -33,7 +33,9 @@ abstract class Collection extends \Maleficarum\Database\Data\Collection\Abstract
             $query .= implode('", "', $dto->data['__distinct']);
             $query .= '" ';
 
-            unset($dto->data['__distinct']);
+            if (array_key_exists('__count', $dto->data) && array_key_exists('__sum', $dto->data)) {
+                $query .= ', ';
+            }
         }
 
         // make sure the count and sum options are not used together
@@ -64,7 +66,11 @@ abstract class Collection extends \Maleficarum\Database\Data\Collection\Abstract
             // add group columns
             count($dto->data['__sum']) and $query .= ', "' . implode('", "', $dto->data['__sum']) . '" ';
         } else {
-            $query .= '* ';
+            if (array_key_exists('__distinct', $dto->data)) {
+                unset($dto->data['__distinct']);
+            } else {
+                $query .= '* ';
+            }
         }
 
         // add basic FROM clause
