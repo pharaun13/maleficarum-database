@@ -29,13 +29,9 @@ abstract class Collection extends \Maleficarum\Database\Data\Collection\Abstract
             is_array($dto->data['__distinct']) && count($dto->data['__distinct']) or $this->respondToInvalidArgument('Incorrect __distinct data. \%s::populate()');
 
             // proceed
-            $query .= 'DISTINCT"';
+            $query .= 'DISTINCT "';
             $query .= implode('", "', $dto->data['__distinct']);
             $query .= '" ';
-
-            if (array_key_exists('__count', $dto->data) && array_key_exists('__sum', $dto->data)) {
-                $query .= ', ';
-            }
         }
 
         // make sure the count and sum options are not used together
@@ -65,12 +61,10 @@ abstract class Collection extends \Maleficarum\Database\Data\Collection\Abstract
 
             // add group columns
             count($dto->data['__sum']) and $query .= ', "' . implode('", "', $dto->data['__sum']) . '" ';
+        } elseif (array_key_exists('__distinct', $dto->data)) {
+            unset($dto->data['__distinct']);
         } else {
-            if (array_key_exists('__distinct', $dto->data)) {
-                unset($dto->data['__distinct']);
-            } else {
-                $query .= '* ';
-            }
+            $query .= '* ';
         }
 
         // add basic FROM clause
