@@ -6,7 +6,7 @@ declare (strict_types=1);
 
 namespace Maleficarum\Database\Data\Model;
 
-abstract class AbstractModel extends \Maleficarum\Data\Model\AbstractModel {
+abstract class AbstractModel extends \Maleficarum\Data\Model\AbstractPersistableModel {
     /* ------------------------------------ Class Traits START ----------------------------------------- */
 
     /**
@@ -93,64 +93,11 @@ abstract class AbstractModel extends \Maleficarum\Data\Model\AbstractModel {
     /* ------------------------------------ Abstract methods START ------------------------------------- */
 
     /**
-     * Persist data stored in this model as a new storage entry.
-     *
-     * @return \Maleficarum\Database\Data\Model\AbstractModel|$this enables method chaining
-     */
-    abstract public function create(): \Maleficarum\Database\Data\Model\AbstractModel;
-
-    /**
-     * Refresh this model with current data from the storage
-     *
-     * @return \Maleficarum\Database\Data\Model\AbstractModel|$this enables method chaining
-     *
-     * @throws \Maleficarum\Database\Exception\EntityNotFoundException
-     */
-    abstract public function read(): \Maleficarum\Database\Data\Model\AbstractModel;
-
-    /**
-     * Update storage entry with data currently stored in this model.
-     *
-     * @return \Maleficarum\Database\Data\Model\AbstractModel|$this enables method chaining
-     */
-    abstract public function update(): \Maleficarum\Database\Data\Model\AbstractModel;
-
-    /**
-     * Delete an entry from the storage based on ID data stored in this model
-     *
-     * @return \Maleficarum\Database\Data\Model\AbstractModel|$this enables method chaining
-     */
-    abstract public function delete(): \Maleficarum\Database\Data\Model\AbstractModel;
-
-    /**
-     * Validate data stored in this model to check if it can be persisted in storage.
-     *
-     * @param bool $clear
-     *
-     * @return bool
-     */
-    abstract public function validate(bool $clear = true): bool;
-
-    /**
-     * Fetch the name of current shard.
-     *
-     * @return string
-     */
-    abstract public function getShardRoute(): string;
-
-    /**
      * Fetch the name of db table used as data source for this model.
      *
      * @return string
      */
     abstract protected function getTable(): string;
-
-    /**
-     * Fetch the prefix used as a prefix for database column property names.
-     *
-     * @return string
-     */
-    abstract protected function getModelPrefix(): string;
 
     /* ------------------------------------ Abstract methods END --------------------------------------- */
 }

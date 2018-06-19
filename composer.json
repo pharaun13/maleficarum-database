@@ -1,39 +1,29 @@
 {
-  "name": "maleficarum/database",
-  "description": "Maleficarum database component.",
-  "license": "proprietary",
-  "require": {
-    "php": "^7.1",
-    "maleficarum/ioc": "^2.0",
-    "maleficarum/data": "^2.0"
-  },
-  "require-dev": {
-    "phpunit/phpunit": "6.3.*",
-    "maleficarum/config": "^2.0",
-    "maleficarum/profiler": "^2.0"
-  },
-  "suggest": {
-    "ext-pgsql": "In order to use PostgreSQL",
-    "ext-sqlsrv": "In order to use Microsoft SQL Server"
-  },
-  "autoload": {
-    "psr-4": {
-      "Maleficarum\\Database\\": "src/Database/"
-    }
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "Maleficarum\\Database\\Tests\\": "tests/"
-    }
-  },
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "git@github.com:pharaun13/maleficarum-ioc.git"
+    "name": "maleficarum/database",
+    "description": "Maleficarum database component.",
+    "license": "proprietary",
+    "require": {
+        "php": "^7.1",
+        "maleficarum/ioc": "^2.0",
+        "maleficarum/data": "^2.1"
     },
-    {
-      "type": "vcs",
-      "url": "git@github.com:pharaun13/maleficarum-data.git"
+    "require-dev": {
+        "phpunit/phpunit": "6.3.*",
+        "maleficarum/config": "^2.0",
+        "maleficarum/profiler": "^2.0"
+    },
+    "suggest": {
+        "ext-pgsql": "In order to use PostgreSQL",
+        "ext-sqlsrv": "In order to use Microsoft SQL Server"
+    },
+    "autoload": {
+        "psr-4": {
+            "Maleficarum\\Database\\": "src/Database/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Maleficarum\\Database\\Tests\\": "tests/"
+        }
     }
-  ]
 }
