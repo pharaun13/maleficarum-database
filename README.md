@@ -7,6 +7,7 @@ This is the Maleficarum Database component. It carries classes used to persist d
 ## [5.0.0] - 2018-06-19
 ### Changed
 - Make use of new persistable model provided by `maleficarum/data` component
+- Removed maleficarum repositories
 
 ## [4.5.1] - 2017-09-19
 ### Fixed
