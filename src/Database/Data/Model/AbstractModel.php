@@ -6,7 +6,7 @@ declare (strict_types=1);
 
 namespace Maleficarum\Database\Data\Model;
 
-abstract class AbstractModel extends \Maleficarum\Data\Model\AbstractPersistableModel {
+abstract class AbstractModel extends \Maleficarum\Data\Model\Persistable\AbstractModel {
     /* ------------------------------------ Class Traits START ----------------------------------------- */
 
     /**

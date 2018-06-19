@@ -10,9 +10,9 @@ abstract class Model extends \Maleficarum\Database\Data\Model\AbstractModel {
     /* ------------------------------------ Database\AbstractModel START ------------------------------- */
 
     /**
-     * @see \Maleficarum\Data\Model\AbstractPersistableModel::create()
+     * @see \Maleficarum\Data\Model\Persistable\AbstractModel::create()
      */
-    public function create(): \Maleficarum\Data\Model\AbstractPersistableModel {
+    public function create(): \Maleficarum\Data\Model\Persistable\AbstractModel {
         // connect to shard if necessary
         $shard = $this->getDb()->fetchShard($this->getShardRoute());
         $shard->isConnected() or $shard->connect();
@@ -61,9 +61,9 @@ abstract class Model extends \Maleficarum\Database\Data\Model\AbstractModel {
     }
 
     /**
-     * @see \Maleficarum\Data\Model\AbstractPersistableModel::read()
+     * @see \Maleficarum\Data\Model\Persistable\AbstractModel::read()
      */
-    public function read(): \Maleficarum\Data\Model\AbstractPersistableModel {
+    public function read(): \Maleficarum\Data\Model\Persistable\AbstractModel {
         // connect to shard if necessary
         $shard = $this->getDb()->fetchShard($this->getShardRoute());
         $shard->isConnected() or $shard->connect();
@@ -85,9 +85,9 @@ abstract class Model extends \Maleficarum\Database\Data\Model\AbstractModel {
     }
 
     /**
-     * @see \Maleficarum\Data\Model\AbstractPersistableModel::update()
+     * @see \Maleficarum\Data\Model\Persistable\AbstractModel::update()
      */
-    public function update(): \Maleficarum\Data\Model\AbstractPersistableModel {
+    public function update(): \Maleficarum\Data\Model\Persistable\AbstractModel {
         // connect to shard if necessary
         $shard = $this->getDb()->fetchShard($this->getShardRoute());
         $shard->isConnected() or $shard->connect();
@@ -125,9 +125,9 @@ abstract class Model extends \Maleficarum\Database\Data\Model\AbstractModel {
     }
 
     /**
-     * @see \Maleficarum\Data\Model\AbstractPersistableModel::delete()
+     * @see \Maleficarum\Data\Model\Persistable\AbstractModel::delete()
      */
-    public function delete(): \Maleficarum\Data\Model\AbstractPersistableModel {
+    public function delete(): \Maleficarum\Data\Model\Persistable\AbstractModel {
         // connect to shard if necessary
         $shard = $this->getDb()->fetchShard($this->getShardRoute());
         $shard->isConnected() or $shard->connect();
