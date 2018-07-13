@@ -149,9 +149,9 @@ abstract class Collection extends \Maleficarum\Database\Data\Collection\Abstract
     }
 
     /**
-     * @see \Maleficarum\Database\Data\Collection\AbstractCollection::insertAll()
+     * @see \Maleficarum\Data\Collection\Persistable\AbstractCollection::insertAll()
      */
-    public function insertAll(): \Maleficarum\Database\Data\Collection\AbstractCollection {
+    public function insertAll(): \Maleficarum\Data\Collection\Persistable\AbstractCollection {
         // test database connection
         $this->populate_testDb();
 
@@ -216,9 +216,9 @@ abstract class Collection extends \Maleficarum\Database\Data\Collection\Abstract
     }
 
     /**
-     * @see \Maleficarum\Database\Data\Collection\AbstractCollection::deleteAll()
+     * @see \Maleficarum\Data\Collection\Persistable\AbstractCollection::deleteAll()
      */
-    public function deleteAll(): \Maleficarum\Database\Data\Collection\AbstractCollection {
+    public function deleteAll(): \Maleficarum\Data\Collection\Persistable\AbstractCollection {
         // test database connection
         $this->populate_testDb();
 

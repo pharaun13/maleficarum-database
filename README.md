@@ -4,6 +4,10 @@ This is the Maleficarum Database component. It carries classes used to persist d
 
 # Change Log
 
+## [6.0.0] - 2018-07-13
+### Changed
+- Make use of new persistable collection provided by `maleficarum/data` component
+
 ## [5.0.0] - 2018-06-19
 ### Changed
 - Make use of new persistable model provided by `maleficarum/data` component
