@@ -1,6 +1,8 @@
-# Maleficarum Database
+# Maleficarum Database [OBSOLETE]
 
 This is the Maleficarum Database component. It carries classes used to persist data in storage.
+
+CAUTION: This component is now obsolete - use Maleficarum Storage instead: https://github.com/pharaun13/maleficarum-storage
 
 # Change Log
 
