@@ -15,6 +15,10 @@ CAUTION: This component is now obsolete - use Maleficarum Storage instead: https
 - Make use of new persistable model provided by `maleficarum/data` component
 - Removed maleficarum repositories
 
+## [4.6.0] - 2018-10-01
+### Changed
+- PDO builder now has it's own skip option in the default initializer.
+
 ## [4.5.1] - 2017-09-19
 ### Fixed
 - Build proper query with `distinct` for MSSQL collection
