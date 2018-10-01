@@ -3,3 +3,4 @@ vendor/
 .idea/
 phpunit.xml
 tests/Integration/config.ini
+public/
