@@ -4,10 +4,13 @@ This is the Maleficarum Database component. It carries classes used to persist d
 
 # Change Log
 
+## [4.6.0] - 2018-10-01
+### Changed
+- PDO builder now has it's own skip option in the default initializer.
+
 ## [4.5.1] - 2017-09-19
 ### Fixed
 - Build proper query with `distinct` for MSSQL collection
-
 
 ## [4.5.0] - 2018-01-24
 ### Changed

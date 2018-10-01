@@ -38,7 +38,7 @@ class Initializer {
 
                     $shards[$shard] = \Maleficarum\Ioc\Container::get('Maleficarum\Database\Shard\Connection\\' . $cfg['driver'] . '\Connection');
                     $shards[$shard]->setHost($cfg['host'])
-                        ->setPort((int)$cfg['port'])
+                        ->setPort((int) $cfg['port'])
                         ->setDbname($cfg['dbName'])
                         ->setUsername($cfg['user'])
                         ->setPassword($cfg['password']);
@@ -59,7 +59,9 @@ class Initializer {
 
                 return $manager;
             });
-
+        }
+        
+        if (!isset($builders['database']['skip']) && !isset($builders['database-pdo']['skip'])) {
             \Maleficarum\Ioc\Container::register('PDO', function ($dep, $opts) {
                 $pdoParams = $opts;
                 unset($pdoParams['__class']); // some "magic" key added by Container
