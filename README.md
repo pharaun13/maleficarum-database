@@ -6,6 +6,10 @@ CAUTION: This component is now obsolete - use Maleficarum Storage instead: https
 
 # Change Log
 
+## [7.0.0] - 2018-09-12
+### Changed
+- Adjustment code to `maleficarum/ioc` component v 3.0
+
 ## [6.0.0] - 2018-07-13
 ### Changed
 - Make use of new persistable collection provided by `maleficarum/data` component

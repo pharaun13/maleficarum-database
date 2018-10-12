@@ -73,7 +73,7 @@ class CollectionTest extends TestCase {
      */
     private function initDatabase() {
         try {
-            Container::registerDependency('Maleficarum\Config', $this->config);
+            Container::registerShare('Maleficarum\Config', $this->config);
             Initializer::initialize();
 
             $this->database = Container::getDependency('Maleficarum\Database');

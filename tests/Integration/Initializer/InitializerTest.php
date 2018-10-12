@@ -14,10 +14,10 @@ use PHPUnit\Framework\TestCase;
 class InitializerTest extends TestCase {
     public function testInitialize() {
         $config = new Config(__DIR__ . '/../config.ini.dist');
-        Container::registerDependency('Maleficarum\Config', $config);
+        Container::registerShare('Maleficarum\Config', $config);
 
         Initializer::initialize();
-        $database = Container::getDependency('Maleficarum\Database');
+        $database = Container::retrieveShare('Maleficarum\Database');
 
         self::assertInstanceOf(
             'Maleficarum\Database\Shard\Manager',

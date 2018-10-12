@@ -3,8 +3,8 @@
     "description": "Maleficarum database component.",
     "license": "proprietary",
     "require": {
-        "php": "^7.1",
-        "maleficarum/ioc": "^2.0",
+        "php": "^7.2",
+        "maleficarum/ioc": "^3.0",
         "maleficarum/data": "^2.2"
     },
     "require-dev": {
