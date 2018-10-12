@@ -20,7 +20,7 @@ class Initializer {
         is_array($builders) or $builders = [];
 
         if (!isset($builders['database']['skip'])) {
-            \Maleficarum\Ioc\Container::register('Maleficarum\Database\Shard\Manager', function ($dep) {
+            \Maleficarum\Ioc\Container::registerBuilder('Maleficarum\Database\Shard\Manager', function ($dep) {
                 $manager = new \Maleficarum\Database\Shard\Manager();
 
                 // check shard list
@@ -60,7 +60,7 @@ class Initializer {
                 return $manager;
             });
 
-            \Maleficarum\Ioc\Container::register('PDO', function ($dep, $opts) {
+            \Maleficarum\Ioc\Container::registerBuilder('PDO', function ($dep, $opts) {
                 $pdoParams = $opts;
                 unset($pdoParams['__class']); // some "magic" key added by Container
                 $pdo = new \PDO(...$pdoParams);
@@ -82,7 +82,7 @@ class Initializer {
         }
 
         $shards = \Maleficarum\Ioc\Container::get('Maleficarum\Database\Shard\Manager');
-        \Maleficarum\Ioc\Container::registerDependency('Maleficarum\Database', $shards);
+        \Maleficarum\Ioc\Container::registerShare('Maleficarum\Database', $shards);
 
         return __METHOD__;
     }
