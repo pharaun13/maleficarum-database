@@ -17,7 +17,7 @@ class InitializerTest extends TestCase {
         Container::registerShare('Maleficarum\Config', $config);
 
         Initializer::initialize();
-        $database = Container::registerShare('Maleficarum\Database');
+        $database = Container::retrieveShare('Maleficarum\Database');
 
         self::assertInstanceOf(
             'Maleficarum\Database\Shard\Manager',
