@@ -6,6 +6,10 @@ CAUTION: This component is now obsolete - use Maleficarum Storage instead: https
 
 # Change Log
 
+## [7.0.1] - 2018-11-28
+### Changed
+- Remove `__instance` key from pdo parameters
+
 ## [7.0.0] - 2018-09-12
 ### Changed
 - Adjustment code to `maleficarum/ioc` component v 3.0
