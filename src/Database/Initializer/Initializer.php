@@ -62,7 +62,7 @@ class Initializer {
 
             \Maleficarum\Ioc\Container::registerBuilder('PDO', function ($dep, $opts) {
                 $pdoParams = $opts;
-                unset($pdoParams['__class']); // some "magic" key added by Container
+                unset($pdoParams['__class'], $pdoParams['__instance']); // some "magic" key added by Container
                 $pdo = new \PDO(...$pdoParams);
 
                 $args = [$pdo];
