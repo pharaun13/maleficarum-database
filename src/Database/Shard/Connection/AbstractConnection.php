@@ -197,7 +197,7 @@ abstract class AbstractConnection {
         } catch (\PDOException $e) {
             // try to recover DB connection
             if (\in_array($e->getCode(), $this->getConnectionErrorCodes(), true)) {
-                $this->connect();
+                $this->reconnect();
                 $statement = $this->createStatement($enableCache, $query, $queryParams);
             } else {
                 throw $e;
