@@ -45,5 +45,10 @@ class Connection extends \Maleficarum\Database\Shard\Connection\AbstractConnecti
         return $this;
     }
 
+    protected function getConnectionErrorCodes(): array
+    {
+        return [];
+    }
+
     /* ------------------------------------ Class Methods END ------------------------------------------ */
 }
