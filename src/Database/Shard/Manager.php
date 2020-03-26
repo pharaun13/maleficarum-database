@@ -6,6 +6,8 @@ declare (strict_types=1);
 
 namespace Maleficarum\Database\Shard;
 
+use Maleficarum\Database\Shard\Connection\AbstractConnection;
+
 class Manager {
     /* ------------------------------------ Class Property START --------------------------------------- */
 
@@ -19,7 +21,7 @@ class Manager {
     /**
      * Internal storage for route to shard mapping.
      *
-     * @var array
+     * @var array|AbstractConnection[]
      */
     protected $routes = [];
 
@@ -89,5 +91,15 @@ class Manager {
         throw new \Maleficarum\Database\Exception\InvalidArgumentException(sprintf('Impossible to fetch the specified route. %s::fetchShard()', static::class));
     }
 
+    /**
+     * Reconnects all attached shards
+     *
+     * @return \Maleficarum\Database\Shard\Connection\AbstractConnection
+     */
+    public function reconnectShards(): \Maleficarum\Database\Shard\Connection\AbstractConnection {
+        foreach ($this->routes as $route) {
+            $route->connect();
+        }
+    }
     /* ------------------------------------ Class Methods END ------------------------------------------ */
 }

@@ -304,6 +304,16 @@ abstract class AbstractConnection {
         return $this->statementParamCountLimit;
     }
 
+    public function setConnectionAttempts(int $connectionAttempts): \Maleficarum\Database\Shard\Connection\AbstractConnection {
+        if ($connectionAttempts < 1) {
+            throw new \InvalidArgumentException(\sprintf('Attempt count must be greater than 0. \%s::setAttempts()', static::class));
+        }
+
+        $this->connectionAttempts = $connectionAttempts;
+
+        return $this;
+    }
+
     /**
      * @param string $driverName
      *
