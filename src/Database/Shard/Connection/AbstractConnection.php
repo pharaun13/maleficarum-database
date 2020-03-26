@@ -81,6 +81,7 @@ abstract class AbstractConnection {
      */
     private $statementsCache;
 
+    private $connectionAttempts = 3;
     /* ------------------------------------ Class Property END ----------------------------------------- */
 
     /**
@@ -129,10 +130,19 @@ abstract class AbstractConnection {
      * @throws \Maleficarum\Database\Exception\Exception
      */
     public function connect(): \Maleficarum\Database\Shard\Connection\AbstractConnection {
-        try {
-            $this->connection = \Maleficarum\Ioc\Container::get('PDO', $this->getConnectionParams());
-        } catch (\PDOException $pex) {
-            throw \Maleficarum\Database\Exception\Exception::fromPDOException($pex, $this);
+        $this->connection = null;
+        $this->statementsCache = [];
+
+        $connectionAttemptCounter = 0;
+        while (null === $this->connection && $connectionAttemptCounter < $this->connectionAttempts) {
+            $connectionAttemptCounter++;
+            try {
+                $this->connection = \Maleficarum\Ioc\Container::get('PDO', $this->getConnectionParams());
+            } catch (\PDOException $e) {
+                if ($connectionAttemptCounter >= $this->connectionAttempts) {
+                    throw \Maleficarum\Database\Exception\Exception::fromPDOException($e, $this);
+                }
+            }
         }
 
         return $this;
@@ -172,23 +182,15 @@ abstract class AbstractConnection {
      * @throws \Maleficarum\Database\Exception\Exception if trying to use too many query params
      */
     public function prepareStatement(string $query, array $queryParams, bool $enableCache = false): \PDOStatement {
-        if ($enableCache) {
-            if (isset($this->statementsCache[crc32($query)])) {
-                $statement = $this->statementsCache[crc32($query)];
+        try {
+            $statement = $this->createStatement($query, $queryParams, $enableCache);
+        } catch (\PDOException $e) {
+            if (\in_array($e->getCode(), $this->getConnectionErrorCodes(), true)) {
+                $this->connect();
+                $statement = $this->createStatement($query, $queryParams, $enableCache);
             } else {
-                $this->checkStatementParams($queryParams);
-                $statement = $this->connection->prepare($query);
-                $this->statementsCache[crc32($query)] = $statement;
+                throw $e;
             }
-        } else {
-            $this->checkStatementParams($queryParams);
-            $statement = $this->connection->prepare($query);
-        }
-
-        // bind parameters
-        foreach ($queryParams as $key => $val) {
-            $type = is_bool($val) ? \PDO::PARAM_BOOL : \PDO::PARAM_STR;
-            $statement->bindValue($key, $val, $type);
         }
 
         return $statement;
@@ -215,6 +217,7 @@ abstract class AbstractConnection {
      */
     abstract protected function lockTable(string $table, string $mode = 'ACCESS EXCLUSIVE'): \Maleficarum\Database\Shard\Connection\AbstractConnection;
 
+    abstract protected function getConnectionErrorCodes(): array;
     /* ------------------------------------ Abstract methods END --------------------------------------- */
 
     /* ------------------------------------ Setters & Getters START ------------------------------------ */
@@ -334,4 +337,34 @@ abstract class AbstractConnection {
     }
 
     /* ------------------------------------ Setters & Getters END -------------------------------------- */
+    /**
+     * @param string $query
+     * @param array $queryParams
+     * @param bool $enableCache
+     *
+     * @return bool|mixed|\PDOStatement
+     */
+    private function createStatement(string $query, array $queryParams, bool $enableCache)
+    {
+        if ($enableCache) {
+            if (isset($this->statementsCache[crc32($query)])) {
+                $statement = $this->statementsCache[crc32($query)];
+            } else {
+                $this->checkStatementParams($queryParams);
+                $statement = $this->connection->prepare($query);
+                $this->statementsCache[crc32($query)] = $statement;
+            }
+        } else {
+            $this->checkStatementParams($queryParams);
+            $statement = $this->connection->prepare($query);
+        }
+
+        // bind parameters
+        foreach ($queryParams as $key => $val) {
+            $type = is_bool($val) ? \PDO::PARAM_BOOL : \PDO::PARAM_STR;
+            $statement->bindValue($key, $val, $type);
+        }
+
+        return $statement;
+    }
 }

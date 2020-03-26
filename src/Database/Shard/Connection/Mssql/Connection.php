@@ -88,5 +88,15 @@ class Connection extends \Maleficarum\Database\Shard\Connection\AbstractConnecti
         throw new \Maleficarum\Database\Exception\Exception('Not implemented yet.');
     }
 
+    protected function getConnectionErrorCodes(): array
+    {
+        return [
+            '08001',
+            '08S01',
+            '08S02',
+            'IMC06'
+        ];
+    }
+
     /* ------------------------------------ Class Methods END ------------------------------------------ */
 }
