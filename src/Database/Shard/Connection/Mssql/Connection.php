@@ -41,6 +41,11 @@ class Connection extends \Maleficarum\Database\Shard\Connection\AbstractConnecti
     const KNOWN_LIMITATION_8623 = 'KNOWN_LIMITATION_8623';
 
     /**
+     * Default query timeout
+     */
+    const QUERY_TIMEOUT_IN_SEC = 60;
+
+    /**
      * @see \Maleficarum\Database\Shard\Connection\AbstractConnection::connect()
      */
     public function connect(): \Maleficarum\Database\Shard\Connection\AbstractConnection {
@@ -52,6 +57,10 @@ class Connection extends \Maleficarum\Database\Shard\Connection\AbstractConnecti
         $pdo->exec('SET ANSI_NULLS ON');
         $pdo->exec('SET QUOTED_IDENTIFIER ON');
         $pdo->exec('SET CONCAT_NULL_YIELDS_NULL ON');
+
+        // Set query timeout
+        $pdo->setAttribute(\PDO::SQLSRV_ATTR_QUERY_TIMEOUT, self::QUERY_TIMEOUT_IN_SEC);
+
         // Don't return all columns as strings
         // @see https://docs.microsoft.com/en-us/sql/connect/php/constants-microsoft-drivers-for-php-for-sql-server
         $pdo->setAttribute(\PDO::SQLSRV_ATTR_FETCHES_NUMERIC_TYPE, true);
