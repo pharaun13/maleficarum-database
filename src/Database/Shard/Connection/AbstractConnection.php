@@ -191,19 +191,27 @@ abstract class AbstractConnection {
         try {
             $statement = $this->createStatement($query, $queryParams);
         } catch (\PDOException $e) {
-            $this->log('Cannot create statement', \LOG_DEBUG, [
-                'message' => $e->getMessage(),
-                'code' => $e->getCode(),
-                'query' => $query,
-                'queryParameters' => $queryParams,
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTrace(),
-            ]);
-
             if (\in_array($e->getCode(), $this->getConnectionErrorCodes(), true)) {
+                $this->log('Cannot create statement due to broken connection. Reconnecting...', \LOG_DEBUG, [
+                    'message' => $e->getMessage(),
+                    'code' => $e->getCode(),
+                    'query' => $query,
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTrace(),
+                ]);
+
                 $this->connect();
                 $statement = $this->createStatement($query, $queryParams);
+
+                $this->log('Connection established successfully', \LOG_DEBUG, [
+                    'message' => $e->getMessage(),
+                    'code' => $e->getCode(),
+                    'query' => $query,
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTrace(),
+                ]);
             } else {
                 throw $e;
             }
