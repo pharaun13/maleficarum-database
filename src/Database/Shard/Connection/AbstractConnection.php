@@ -331,7 +331,7 @@ abstract class AbstractConnection {
     }
 
     protected function log(string $message, $logLevel, array $context = []): \Maleficarum\Database\Shard\Connection\AbstractConnection {
-        \syslog($logLevel, \sprintf('%s. [context: %s]', $message, (string)\json_encode($context)));
+        \syslog($logLevel, \sprintf('[PHP] %s. [context: %s]', $message, (string)\json_encode($context)));
 
         return $this;
     }
