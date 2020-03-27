@@ -6,6 +6,8 @@ declare (strict_types=1);
 
 namespace Maleficarum\Database\Shard\Connection;
 
+use Psr\Log\LogLevel;
+
 /**
  * Wrapper for plain \PDO that unifies various databases even more
  *
@@ -76,11 +78,7 @@ abstract class AbstractConnection {
      */
     protected $password = null;
 
-    /**
-     * @var array [string crc32(query) => \PDOStatement, ...]
-     */
-    private $statementsCache;
-
+    private $connectionAttempts = 3;
     /* ------------------------------------ Class Property END ----------------------------------------- */
 
     /**
@@ -91,7 +89,6 @@ abstract class AbstractConnection {
     public function __construct(string $driverName, int $statementParamCountLimit = null) {
         $this->setDriverName($driverName);
         $this->statementParamCountLimit = $statementParamCountLimit;
-        $this->statementsCache = [];
     }
 
     /* ------------------------------------ Magic methods START ---------------------------------------- */
@@ -129,10 +126,29 @@ abstract class AbstractConnection {
      * @throws \Maleficarum\Database\Exception\Exception
      */
     public function connect(): \Maleficarum\Database\Shard\Connection\AbstractConnection {
-        try {
-            $this->connection = \Maleficarum\Ioc\Container::get('PDO', $this->getConnectionParams());
-        } catch (\PDOException $pex) {
-            throw \Maleficarum\Database\Exception\Exception::fromPDOException($pex, $this);
+        $this->connection = null;
+
+        $connectionAttemptCounter = 0;
+        while (null === $this->connection && $connectionAttemptCounter < $this->connectionAttempts) {
+            $connectionAttemptCounter++;
+            try {
+                $this->connection = \Maleficarum\Ioc\Container::get('PDO', $this->getConnectionParams());
+            } catch (\PDOException $e) {
+                $this->log('Cannot connect to database', \LOG_DEBUG, [
+                    'message' => $e->getMessage(),
+                    'connectionAttempts' => $connectionAttemptCounter,
+                    'code' => $e->getCode(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTrace(),
+                ]);
+
+                if ($connectionAttemptCounter >= $this->connectionAttempts) {
+                    throw \Maleficarum\Database\Exception\Exception::fromPDOException($e, $this);
+                }
+
+                \sleep($connectionAttemptCounter * 2);
+            }
         }
 
         return $this;
@@ -172,23 +188,33 @@ abstract class AbstractConnection {
      * @throws \Maleficarum\Database\Exception\Exception if trying to use too many query params
      */
     public function prepareStatement(string $query, array $queryParams, bool $enableCache = false): \PDOStatement {
-        if ($enableCache) {
-            if (isset($this->statementsCache[crc32($query)])) {
-                $statement = $this->statementsCache[crc32($query)];
-            } else {
-                $this->checkStatementParams($queryParams);
-                $statement = $this->connection->prepare($query);
-                $this->statementsCache[crc32($query)] = $statement;
-            }
-        } else {
-            $this->checkStatementParams($queryParams);
-            $statement = $this->connection->prepare($query);
-        }
+        try {
+            $statement = $this->createStatement($query, $queryParams);
+        } catch (\PDOException $e) {
+            if (\in_array($e->getCode(), $this->getConnectionErrorCodes(), true)) {
+                $this->log('Cannot create statement due to broken connection. Reconnecting...', \LOG_DEBUG, [
+                    'message' => $e->getMessage(),
+                    'code' => $e->getCode(),
+                    'query' => $query,
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTrace(),
+                ]);
 
-        // bind parameters
-        foreach ($queryParams as $key => $val) {
-            $type = is_bool($val) ? \PDO::PARAM_BOOL : \PDO::PARAM_STR;
-            $statement->bindValue($key, $val, $type);
+                $this->connect();
+                $statement = $this->createStatement($query, $queryParams);
+
+                $this->log('Connection established successfully', \LOG_DEBUG, [
+                    'message' => $e->getMessage(),
+                    'code' => $e->getCode(),
+                    'query' => $query,
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTrace(),
+                ]);
+            } else {
+                throw $e;
+            }
         }
 
         return $statement;
@@ -215,6 +241,7 @@ abstract class AbstractConnection {
      */
     abstract protected function lockTable(string $table, string $mode = 'ACCESS EXCLUSIVE'): \Maleficarum\Database\Shard\Connection\AbstractConnection;
 
+    abstract protected function getConnectionErrorCodes(): array;
     /* ------------------------------------ Abstract methods END --------------------------------------- */
 
     /* ------------------------------------ Setters & Getters START ------------------------------------ */
@@ -301,6 +328,22 @@ abstract class AbstractConnection {
         return $this->statementParamCountLimit;
     }
 
+    public function setConnectionAttempts(int $connectionAttempts): \Maleficarum\Database\Shard\Connection\AbstractConnection {
+        if ($connectionAttempts < 1) {
+            throw new \InvalidArgumentException(\sprintf('Attempt count must be greater than 0. \%s::setAttempts()', static::class));
+        }
+
+        $this->connectionAttempts = $connectionAttempts;
+
+        return $this;
+    }
+
+    protected function log(string $message, $logLevel, array $context = []): \Maleficarum\Database\Shard\Connection\AbstractConnection {
+        \syslog($logLevel, \sprintf('[PHP] %s. [context: %s]', $message, (string)\json_encode($context)));
+
+        return $this;
+    }
+
     /**
      * @param string $driverName
      *
@@ -334,4 +377,23 @@ abstract class AbstractConnection {
     }
 
     /* ------------------------------------ Setters & Getters END -------------------------------------- */
+    /**
+     * @param string $query
+     * @param array $queryParams
+     *
+     * @return bool|mixed|\PDOStatement
+     */
+    private function createStatement(string $query, array $queryParams)
+    {
+        $this->checkStatementParams($queryParams);
+        $statement = $this->connection->prepare($query);
+
+        // bind parameters
+        foreach ($queryParams as $key => $val) {
+            $type = is_bool($val) ? \PDO::PARAM_BOOL : \PDO::PARAM_STR;
+            $statement->bindValue($key, $val, $type);
+        }
+
+        return $statement;
+    }
 }

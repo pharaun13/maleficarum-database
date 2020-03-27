@@ -6,6 +6,11 @@ CAUTION: This component is now obsolete - use Maleficarum Storage instead: https
 
 # Change Log
 
+## [8.0.0] - 2020-03-27
+### Changed
+- Remove statement cache
+- Add reconnect on connection failure
+
 ## [7.0.1] - 2018-11-28
 ### Changed
 - Remove `__instance` key from pdo parameters
