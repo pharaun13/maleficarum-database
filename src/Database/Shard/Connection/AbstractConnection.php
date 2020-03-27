@@ -147,7 +147,7 @@ abstract class AbstractConnection {
                     throw \Maleficarum\Database\Exception\Exception::fromPDOException($e, $this);
                 }
 
-                \sleep($connectionAttemptCounter);
+                \sleep($connectionAttemptCounter * 2);
             }
         }
 
