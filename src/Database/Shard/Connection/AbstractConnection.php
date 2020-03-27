@@ -18,8 +18,6 @@ use Psr\Log\LogLevel;
  * @method bool rollback()
  */
 abstract class AbstractConnection {
-    use \Maleficarum\Logger\Dependant;
-
     /* ------------------------------------ Class Property START --------------------------------------- */
 
     /**
@@ -136,7 +134,7 @@ abstract class AbstractConnection {
             try {
                 $this->connection = \Maleficarum\Ioc\Container::get('PDO', $this->getConnectionParams());
             } catch (\PDOException $e) {
-                $this->log('Cannot connect to database', LogLevel::DEBUG, [
+                $this->log('Cannot connect to database', \LOG_DEBUG, [
                     'message' => $e->getMessage(),
                     'connectionAttempts' => $connectionAttemptCounter,
                     'code' => $e->getCode(),
@@ -193,7 +191,7 @@ abstract class AbstractConnection {
         try {
             $statement = $this->createStatement($query, $queryParams);
         } catch (\PDOException $e) {
-            $this->log('Cannot create statement', LogLevel::DEBUG, [
+            $this->log('Cannot create statement', \LOG_DEBUG, [
                 'message' => $e->getMessage(),
                 'code' => $e->getCode(),
                 'query' => $query,
@@ -333,9 +331,7 @@ abstract class AbstractConnection {
     }
 
     protected function log(string $message, $logLevel, array $context = []): \Maleficarum\Database\Shard\Connection\AbstractConnection {
-        if (null !== $this->getLogger()) {
-            $this->getLogger()->log($logLevel, $message, $context);
-        }
+        \syslog($logLevel, \sprintf('%s. [context: %s]', $message, (string)\json_encode($context)));
 
         return $this;
     }

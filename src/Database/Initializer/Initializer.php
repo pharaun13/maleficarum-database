@@ -45,10 +45,6 @@ class Initializer {
                         ->setDbname($cfg['dbName'])
                         ->setUsername($cfg['user'])
                         ->setPassword($cfg['password']);
-
-                    if (isset($dep['Maleficarum\Logger'])) {
-                        $shards[$shard]->setLogger($dep['Maleficarum\Logger']);
-                    }
                 }
 
                 // check routes
