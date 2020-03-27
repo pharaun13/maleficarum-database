@@ -6,6 +6,8 @@ declare (strict_types=1);
 
 namespace Maleficarum\Database\Initializer;
 
+use Maleficarum\Database\Shard\Connection\AbstractConnection;
+
 class Initializer {
     /**
      * This will setup all IOC definitions specific to this component.
@@ -36,12 +38,17 @@ class Initializer {
                     }
                     $cfg = $dep['Maleficarum\Config']['database_shards'][$shard];
 
+                    /** @var AbstractConnection[] $shards */
                     $shards[$shard] = \Maleficarum\Ioc\Container::get('Maleficarum\Database\Shard\Connection\\' . $cfg['driver'] . '\Connection');
                     $shards[$shard]->setHost($cfg['host'])
                         ->setPort((int)$cfg['port'])
                         ->setDbname($cfg['dbName'])
                         ->setUsername($cfg['user'])
                         ->setPassword($cfg['password']);
+
+                    if (isset($dep['Maleficarum\Logger'])) {
+                        $shards[$shard]->setLogger($dep['Maleficarum\Logger']);
+                    }
                 }
 
                 // check routes

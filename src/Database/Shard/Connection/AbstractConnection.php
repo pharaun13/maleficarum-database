@@ -6,6 +6,8 @@ declare (strict_types=1);
 
 namespace Maleficarum\Database\Shard\Connection;
 
+use Psr\Log\LogLevel;
+
 /**
  * Wrapper for plain \PDO that unifies various databases even more
  *
@@ -16,6 +18,8 @@ namespace Maleficarum\Database\Shard\Connection;
  * @method bool rollback()
  */
 abstract class AbstractConnection {
+    use \Maleficarum\Logger\Dependant;
+
     /* ------------------------------------ Class Property START --------------------------------------- */
 
     /**
@@ -132,9 +136,19 @@ abstract class AbstractConnection {
             try {
                 $this->connection = \Maleficarum\Ioc\Container::get('PDO', $this->getConnectionParams());
             } catch (\PDOException $e) {
+                $this->log('Cannot connect to database', LogLevel::DEBUG, [
+                    'message' => $e->getMessage(),
+                    'connectionAttempts' => $connectionAttemptCounter,
+                    'code' => $e->getCode(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTrace(),
+                ]);
+
                 if ($connectionAttemptCounter >= $this->connectionAttempts) {
                     throw \Maleficarum\Database\Exception\Exception::fromPDOException($e, $this);
                 }
+
                 \sleep($connectionAttemptCounter);
             }
         }
@@ -179,6 +193,16 @@ abstract class AbstractConnection {
         try {
             $statement = $this->createStatement($query, $queryParams);
         } catch (\PDOException $e) {
+            $this->log('Cannot create statement', LogLevel::DEBUG, [
+                'message' => $e->getMessage(),
+                'code' => $e->getCode(),
+                'query' => $query,
+                'queryParameters' => $queryParams,
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTrace(),
+            ]);
+
             if (\in_array($e->getCode(), $this->getConnectionErrorCodes(), true)) {
                 $this->connect();
                 $statement = $this->createStatement($query, $queryParams);
@@ -304,6 +328,14 @@ abstract class AbstractConnection {
         }
 
         $this->connectionAttempts = $connectionAttempts;
+
+        return $this;
+    }
+
+    protected function log(string $message, $logLevel, array $context = []): \Maleficarum\Database\Shard\Connection\AbstractConnection {
+        if (null !== $this->getLogger()) {
+            $this->getLogger()->log($logLevel, $message, $context);
+        }
 
         return $this;
     }
