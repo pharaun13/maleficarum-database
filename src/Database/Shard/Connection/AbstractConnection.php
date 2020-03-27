@@ -76,11 +76,6 @@ abstract class AbstractConnection {
      */
     protected $password = null;
 
-    /**
-     * @var array [string crc32(query) => \PDOStatement, ...]
-     */
-    private $statementsCache;
-
     private $connectionAttempts = 3;
     /* ------------------------------------ Class Property END ----------------------------------------- */
 
@@ -92,7 +87,6 @@ abstract class AbstractConnection {
     public function __construct(string $driverName, int $statementParamCountLimit = null) {
         $this->setDriverName($driverName);
         $this->statementParamCountLimit = $statementParamCountLimit;
-        $this->statementsCache = [];
     }
 
     /* ------------------------------------ Magic methods START ---------------------------------------- */
@@ -131,7 +125,6 @@ abstract class AbstractConnection {
      */
     public function connect(): \Maleficarum\Database\Shard\Connection\AbstractConnection {
         $this->connection = null;
-        $this->statementsCache = [];
 
         $connectionAttemptCounter = 0;
         while (null === $this->connection && $connectionAttemptCounter < $this->connectionAttempts) {
@@ -184,11 +177,11 @@ abstract class AbstractConnection {
      */
     public function prepareStatement(string $query, array $queryParams, bool $enableCache = false): \PDOStatement {
         try {
-            $statement = $this->createStatement($query, $queryParams, $enableCache);
+            $statement = $this->createStatement($query, $queryParams);
         } catch (\PDOException $e) {
             if (\in_array($e->getCode(), $this->getConnectionErrorCodes(), true)) {
                 $this->connect();
-                $statement = $this->createStatement($query, $queryParams, $enableCache);
+                $statement = $this->createStatement($query, $queryParams);
             } else {
                 throw $e;
             }
@@ -351,24 +344,13 @@ abstract class AbstractConnection {
     /**
      * @param string $query
      * @param array $queryParams
-     * @param bool $enableCache
      *
      * @return bool|mixed|\PDOStatement
      */
-    private function createStatement(string $query, array $queryParams, bool $enableCache)
+    private function createStatement(string $query, array $queryParams)
     {
-        if ($enableCache) {
-            if (isset($this->statementsCache[crc32($query)])) {
-                $statement = $this->statementsCache[crc32($query)];
-            } else {
-                $this->checkStatementParams($queryParams);
-                $statement = $this->connection->prepare($query);
-                $this->statementsCache[crc32($query)] = $statement;
-            }
-        } else {
-            $this->checkStatementParams($queryParams);
-            $statement = $this->connection->prepare($query);
-        }
+        $this->checkStatementParams($queryParams);
+        $statement = $this->connection->prepare($query);
 
         // bind parameters
         foreach ($queryParams as $key => $val) {
